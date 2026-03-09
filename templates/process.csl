@@ -1,0 +1,122 @@
+// ============================================
+// CSL Template: Process & Step Entities
+// Usage: One process block per repeatable workflow.
+//        One step block per atomic task.
+//        Steps must reference their process via partOf.
+//        Chain steps using dependsOn to define order.
+// ============================================
+
+process ProcessName {
+  description: "What this process achieves and when it is run"
+
+  performedBy: TeamName           // required: which team runs this process
+
+  uses: [SystemA, SystemB]        // tools / systems used in this process
+
+  supports: [OfferingName]        // offering(s) this process supports
+
+  // Ordered list of steps (declare all step entities below)
+  steps: [
+    StepOne,
+    StepTwo,
+    StepThree,
+    StepFour,
+    StepFive
+  ]
+
+  metrics: {
+    avgDuration: 14               // average calendar days to complete end-to-end
+    successRate: 0.92             // fraction of runs that achieve goal (0–1)
+    clientSatisfaction: 4.5       // optional: avg rating (e.g., out of 5)
+  }
+
+  automation: {
+    level: "partial"              // none | partial | full
+    automated: ["StepOne"]        // names of automated steps
+    manual: ["StepTwo", "StepThree", "StepFour", "StepFive"]
+  }
+
+  meta: {
+    confidence: "high"
+    source: "workshop"
+    lastReviewed: "2024-01-01"
+    notes: ""
+  }
+  status: "active"
+  doc: "knowledge/processes/process-name.md"
+}
+
+// ============================================
+// Steps
+// ============================================
+
+step StepOne {
+  description: "First step — typically intake, scheduling, or discovery"
+  partOf: ProcessName              // required
+  performedBy: RoleName            // required: who performs this step
+  duration: 30                     // minutes
+  estimatedEffort: 0.5             // hours
+  delegatable: true                // can this be done by a junior or assistant?
+  automationPotential: "high"      // low | medium | high
+}
+
+step StepTwo {
+  description: "Second step — analysis or preparation"
+  partOf: ProcessName
+  performedBy: SeniorRole
+  duration: 120
+  estimatedEffort: 2
+  dependsOn: [StepOne]             // must complete StepOne first
+  inputs: [
+    "Input document or artifact",
+    "Client questionnaire"
+  ]
+  outputs: [
+    "Analysis output",
+    "Prepared brief"
+  ]
+  delegatable: false
+  automationPotential: "low"
+}
+
+step StepThree {
+  description: "Core delivery step — the main value-creating activity"
+  partOf: ProcessName
+  performedBy: SeniorRole
+  duration: 240
+  estimatedEffort: 4
+  dependsOn: [StepTwo]
+  uses: [SystemA, SystemB]
+  deliverables: [
+    "Primary deliverable",
+    "Supporting document"
+  ]
+  successCriteria: [
+    "Client can articulate the outcome",
+    "Deliverable reviewed and signed off"
+  ]
+  delegatable: false
+  automationPotential: "low"
+}
+
+step StepFour {
+  description: "Review and quality check"
+  partOf: ProcessName
+  performedBy: QualityRole
+  duration: 60
+  estimatedEffort: 1
+  dependsOn: [StepThree]
+  delegatable: true
+  automationPotential: "medium"
+}
+
+step StepFive {
+  description: "Final handoff and closure"
+  partOf: ProcessName
+  performedBy: RoleName
+  duration: 30
+  estimatedEffort: 0.5
+  dependsOn: [StepFour]
+  delegatable: true
+  automationPotential: "medium"
+}

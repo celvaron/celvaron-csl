@@ -1,0 +1,133 @@
+// ============================================
+// CSL Template: Package Entity
+// Usage: One block per pricing tier per offering.
+//        Required: offering, pricing.basePrice.
+//        Use position to define tier order (1 = lowest).
+// ============================================
+
+// Entry tier (lowest price, narrowest scope)
+package EntryPackageName {
+  description: "Core features, ideal for clients getting started"
+
+  offering: OfferingName          // required: which offering this packages
+  tier: "entry"                   // entry | standard | premium | enterprise
+  position: 1                     // 1 = lowest tier in the lineup
+
+  includes: [
+    "Feature or deliverable A",
+    "Feature or deliverable B"
+  ]
+  excludes: [
+    "Feature not included at this tier",
+    "Premium support"
+  ]
+
+  pricing: {
+    model: "fixed_project"        // fixed_project | monthly_retainer | value_based | tiered_subscription | usage_based | hybrid
+    basePrice: 2500               // required, must be > 0
+    currency: "EUR"               // EUR | USD | GBP | etc.
+    paymentTerms: "50% upfront, 50% on delivery"
+  }
+
+  delivery: {
+    duration: 30                  // days
+    format: "remote"              // remote | onsite | hybrid
+    meetings: 2
+    async_work: true
+  }
+
+  boundaries: {
+    maxRevisions: 2
+    responseTime: "48 hours"
+    scope: "Single primary use case"
+  }
+
+  targets: [TargetSegment]
+
+  meta: { confidence: "high", source: "document_analysis" }
+  status: "active"
+}
+
+// Standard tier (mid-range)
+package StandardPackageName {
+  description: "Full feature set for growing teams"
+
+  offering: OfferingName
+  tier: "standard"
+  position: 2
+
+  includes: [
+    "Feature or deliverable A",
+    "Feature or deliverable B",
+    "Feature or deliverable C"
+  ]
+  excludes: [
+    "Enterprise-only feature"
+  ]
+
+  pricing: {
+    model: "monthly_retainer"
+    basePrice: 5000
+    currency: "EUR"
+    paymentTerms: "Monthly, cancel with 30 days notice"
+  }
+
+  delivery: {
+    duration: 30
+    format: "hybrid"
+    meetings: 4
+    async_work: true
+  }
+
+  boundaries: {
+    maxRevisions: 3
+    responseTime: "24 hours"
+    scope: "Up to 2 use cases"
+  }
+
+  targets: [TargetSegment]
+
+  meta: { confidence: "high", source: "document_analysis" }
+  status: "active"
+}
+
+// Premium tier (highest price, widest scope)
+package PremiumPackageName {
+  description: "Full access, priority support, and custom scope"
+
+  offering: OfferingName
+  tier: "premium"
+  position: 3
+
+  includes: [
+    "Feature or deliverable A",
+    "Feature or deliverable B",
+    "Feature or deliverable C",
+    "Enterprise-only feature",
+    "Priority support"
+  ]
+
+  pricing: {
+    model: "custom"               // use custom for negotiable enterprise pricing
+    basePrice: 12000
+    currency: "EUR"
+    paymentTerms: "Annual contract, quarterly invoicing"
+  }
+
+  delivery: {
+    duration: 30
+    format: "hybrid"
+    meetings: 8
+    async_work: true
+  }
+
+  boundaries: {
+    responseTime: "4 hours"
+    scope: "Unlimited within agreed framework"
+  }
+
+  targets: [TargetSegment]
+
+  meta: { confidence: "high", source: "document_analysis" }
+  status: "active"
+}

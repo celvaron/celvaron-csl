@@ -1,0 +1,65 @@
+// ============================================
+// CSL Template: Offering Entity
+// Usage: Copy and fill in one block per service
+//        or product your company delivers.
+//        Required: targets (≥1), requires (≥1),
+//        delivers (≥1).
+// ============================================
+
+offering OfferingName {
+  description: "What this offering does and what transformation it creates for clients"
+
+  // Who this offering serves (required, ≥1)
+  targets: [SegmentA, SegmentB] with {
+    SegmentA: { priority: primary, fitScore: 0.90 }    // fitScore: 0–1
+    SegmentB: { priority: secondary, fitScore: 0.70 }
+  }
+
+  // Markets where this offering operates
+  operatesIn: [MarketA]
+
+  // Capabilities needed to deliver this (required, ≥1)
+  requires: [
+    CapabilityA with { proficiency: expert, criticality: high },       // proficiency: basic | intermediate | advanced | expert
+    CapabilityB with { proficiency: advanced, criticality: medium },   // criticality: low | medium | high
+    CapabilityC with { proficiency: intermediate, criticality: low }
+  ]
+
+  // Outcomes this offering delivers to clients (required, ≥1)
+  delivers: [OutcomeA, OutcomeB]
+
+  // Metrics that measure this offering's success
+  measuredBy: [MetricA, MetricB]
+
+  // Company objectives this offering contributes to
+  contributesTo: [ObjectiveA]
+
+  // Commercial data
+  economics: {
+    avgDealSize: 0              // average contract or project value (currency)
+    avgDeliveryHours: 0         // average hours to fully deliver
+    targetMargin: 0.65          // gross margin as decimal (e.g., 0.65 = 65%)
+    clientLifetimeValue: 0      // average total revenue from one client
+  }
+
+  // Performance data
+  performance: {
+    conversionRate: 0.30        // % of qualified prospects who buy (0–1)
+    avgSalesCycle: 14           // average days from first contact to signed deal
+    clientRetention: 0.80       // % of clients who renew or continue (0–1)
+    referralRate: 0.30          // % of new clients from referrals (0–1)
+  }
+
+  // Packages that bundle and price this offering
+  packages: [PackageA, PackageB, PackageC]
+
+  meta: {
+    confidence: "medium"
+    source: "client_interview"
+    lastReviewed: "2024-01-01"
+    tags: ["core"]
+    notes: ""
+  }
+  status: "draft"
+  doc: "knowledge/offerings/offering-name.md"
+}

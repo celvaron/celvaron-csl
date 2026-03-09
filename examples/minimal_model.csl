@@ -1,0 +1,82 @@
+# minimal_model.csl
+# The smallest valid CSL model — one company with the essential structural entities.
+# Use this as a starting point or a test case for validators and parsers.
+
+version: "1.0"
+author: "CSL Examples"
+description: "Minimal valid CSL model — single company with core entities only"
+
+# ── Company ────────────────────────────────────────────────────────────────────
+
+company Minimal {
+  industry: "Software"
+  size: "startup"
+  stage: "growth"
+}
+
+# ── Market & Segment ───────────────────────────────────────────────────────────
+
+market SmallBusinessSoftwareMarket {
+  region: "Global"
+  size: 5000000000
+}
+
+segment SmallBusinessOwners {
+  description: "Owners of businesses with 1–50 employees"
+  size: 2000000
+  operatesIn: SmallBusinessSoftwareMarket
+}
+
+# ── Outcome ────────────────────────────────────────────────────────────────────
+
+outcome ReduceAdminTime {
+  description: "Save at least 5 hours of admin work per week"
+  type: "efficiency"
+  measuredBy: HoursSavedPerWeek
+}
+
+metric HoursSavedPerWeek {
+  description: "Average hours of admin work saved per user per week"
+  unit: "hours/week"
+  target: 5
+  baseline: 0
+}
+
+# ── Offering ───────────────────────────────────────────────────────────────────
+
+offering AdminAutomationTool {
+  description: "Lightweight SaaS application that automates recurring admin tasks"
+  type: "saas"
+  targets: SmallBusinessOwners
+  delivers: ReduceAdminTime
+}
+
+# ── Package ────────────────────────────────────────────────────────────────────
+
+package StarterPlan {
+  tier: "entry"
+  price: 29
+  billingCycle: "monthly"
+  partOf: AdminAutomationTool
+  features: [
+    "Up to 5 automations",
+    "Email reminders",
+    "Basic reporting"
+  ]
+}
+
+# ── Capability ─────────────────────────────────────────────────────────────────
+
+capability TaskAutomation {
+  description: "Core automation engine that runs scheduled and triggered tasks"
+  maturityLevel: "operational"
+  supports: AdminAutomationTool
+}
+
+# ── Team ───────────────────────────────────────────────────────────────────────
+
+team ProductTeam {
+  size: 3
+  ownedBy: Minimal
+  owns: TaskAutomation
+}

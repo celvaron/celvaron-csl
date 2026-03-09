@@ -1,0 +1,353 @@
+// ============================================
+// CSL Template: Full Value Chain
+// Market → Segment → Offering → Outcome → Economic Value
+//                      ↓
+//               Capability → Process → Team
+//                      ↓
+//               Package → Pricing → Objective → Metric
+//
+// Usage: Copy this as the foundation for a complete
+//        company model. Replace all placeholder names
+//        with real entity names.
+// ============================================
+
+// ============================================
+// MARKET
+// ============================================
+
+market PrimaryMarket {
+  description: "Primary geographic or industry market"
+  type: "geographic"              // geographic | industry | niche
+  region: "EU"
+  countries: ["DE", "UK", "FR", "NL"]
+  size: {
+    estimatedCompanies: 10000
+    addressableMarket: 500000000  // total addressable market in currency
+  }
+  characteristics: {
+    maturity: "growing"
+    competition: "fragmented"
+    regulation: "moderate"
+  }
+  meta: { confidence: "medium", source: "market_research" }
+}
+
+// ============================================
+// SEGMENT
+// ============================================
+
+segment PrimarySegment {
+  description: "Primary customer group this company serves"
+  characteristics: {
+    industry: "Professional Services"
+    revenueRange: [500000, 5000000]
+    teamSize: [5, 50]
+    businessAge: [2, 10]
+    geography: ["EU", "US"]
+  }
+  problems: [
+    "Key problem this segment faces",
+    "Second key problem"
+  ]
+  motivations: [
+    "What they want to achieve",
+    "What they want to avoid"
+  ]
+  buyingBehavior: {
+    decisionMaker: "Founder/CEO"
+    avgDecisionTime: 14
+    priceSensitivity: "medium"    // low | medium | high
+    referralDriven: true
+  }
+  meta: { confidence: "high", source: "client_interview" }
+}
+
+// ============================================
+// OUTCOME
+// ============================================
+
+outcome PrimaryOutcome {
+  description: "The primary transformation this company delivers to clients"
+  type: "revenue_increase"        // revenue_increase | cost_reduction | time_saving | risk_mitigation | capacity_expansion | quality_improvement | customer_satisfaction
+  baseline: {
+    metric: "MRR"
+    value: 20000
+    unit: "EUR"
+  }
+  target: {
+    metric: "MRR"
+    value: 40000
+    unit: "EUR"
+    timeframe: "6 months"
+  }
+  achievedThrough: [CoreOffering]
+  measuredBy: [MRR]
+  economicValue: {
+    annualRevenue: 240000
+    costReduction: 0
+    timeSaving: 200
+    capacityExpansion: 2.0
+  }
+  clientState: {
+    before: "Client's painful current state"
+    after: "Client's desired transformed state"
+  }
+  meta: { confidence: "medium", source: "client_interview" }
+}
+
+// ============================================
+// OFFERING
+// ============================================
+
+offering CoreOffering {
+  description: "Core service this company delivers"
+  targets: [PrimarySegment] with {
+    PrimarySegment: { priority: primary, fitScore: 0.88 }
+  }
+  operatesIn: [PrimaryMarket]
+  requires: [
+    CoreCapability with { proficiency: advanced, criticality: high },
+    SupportCapability with { proficiency: intermediate, criticality: medium }
+  ]
+  delivers: [PrimaryOutcome]
+  measuredBy: [MRR, ConversionRate]
+  contributesTo: [GrowRevenue]
+  economics: {
+    avgDealSize: 15000
+    avgDeliveryHours: 60
+    targetMargin: 0.65
+    clientLifetimeValue: 75000
+  }
+  performance: {
+    conversionRate: 0.30
+    avgSalesCycle: 21
+    clientRetention: 0.80
+    referralRate: 0.30
+  }
+  packages: [EntryPackage, StandardPackage]
+  meta: { confidence: "medium", source: "client_interview" }
+  status: "active"
+}
+
+// ============================================
+// PACKAGES
+// ============================================
+
+package EntryPackage {
+  offering: CoreOffering
+  tier: "entry"
+  position: 1
+  description: "Entry-level package for new clients"
+  pricing: {
+    model: "fixed_project"
+    basePrice: 5000
+    currency: "EUR"
+    paymentTerms: "50% upfront, 50% on delivery"
+  }
+  delivery: { duration: 14, format: "remote", meetings: 2 }
+  boundaries: { maxRevisions: 2, responseTime: "48 hours" }
+  targets: [PrimarySegment]
+  meta: { confidence: "high", source: "document_analysis" }
+  status: "active"
+}
+
+package StandardPackage {
+  offering: CoreOffering
+  tier: "standard"
+  position: 2
+  description: "Full delivery for established clients"
+  pricing: {
+    model: "monthly_retainer"
+    basePrice: 3000
+    currency: "EUR"
+    paymentTerms: "Monthly, 3-month minimum"
+  }
+  delivery: { duration: 30, format: "hybrid", meetings: 4 }
+  boundaries: { maxRevisions: 3, responseTime: "24 hours" }
+  targets: [PrimarySegment]
+  meta: { confidence: "high", source: "document_analysis" }
+  status: "active"
+}
+
+// ============================================
+// CAPABILITY
+// ============================================
+
+capability CoreCapability {
+  description: "Core skill or ability that enables delivery of CoreOffering"
+  ownedBy: CoreTeam
+  supports: [CoreOffering]
+  maturity: { current: "advanced", target: "expert" }
+  resources: {
+    toolsUsed: [PrimarySystem]
+    peopleRequired: 2
+    avgTimePerExecution: 20
+  }
+  criticality: "high"
+  differentiator: true
+  meta: { confidence: "high", source: "workshop" }
+}
+
+capability SupportCapability {
+  description: "Supporting skill used in delivery"
+  ownedBy: CoreTeam
+  supports: [CoreOffering]
+  maturity: { current: "intermediate", target: "advanced" }
+  criticality: "medium"
+  meta: { confidence: "medium", source: "assumption" }
+}
+
+// ============================================
+// TEAM & ROLE
+// ============================================
+
+team CoreTeam {
+  description: "Team responsible for delivering CoreOffering"
+  roles: [SeniorConsultant, Analyst]
+  owns: [CoreCapability, SupportCapability]
+  size: { current: 3, target: 5 }
+  capacity: { billableHours: 120, utilization: 0.75 }
+  structure: { leadRole: SeniorConsultant, reportingTo: "CEO" }
+  meta: { confidence: "high", source: "client_interview" }
+}
+
+role SeniorConsultant {
+  description: "Leads client engagements and owns delivery quality"
+  responsibilities: [
+    "Client relationship ownership",
+    "Delivery leadership",
+    "Quality assurance"
+  ]
+  capabilities: [
+    CoreCapability with { level: advanced }
+  ]
+  compensation: { type: "salary_bonus", range: [80000, 120000] }
+}
+
+role Analyst {
+  description: "Supports research and delivery tasks"
+  responsibilities: [
+    "Research and data collection",
+    "Supporting analysis",
+    "Documentation"
+  ]
+  capabilities: [
+    SupportCapability with { level: intermediate }
+  ]
+  compensation: { type: "salary_bonus", range: [45000, 65000] }
+}
+
+// ============================================
+// PROCESS
+// ============================================
+
+process CoreDeliveryProcess {
+  description: "Primary delivery workflow for CoreOffering"
+  performedBy: CoreTeam
+  uses: [PrimarySystem]
+  supports: [CoreOffering]
+  steps: [Intake, Analysis, Delivery, Review]
+  metrics: { avgDuration: 14, successRate: 0.92 }
+  meta: { confidence: "high", source: "workshop" }
+}
+
+step Intake {
+  description: "Capture client information and schedule kickoff"
+  partOf: CoreDeliveryProcess
+  performedBy: Analyst
+  duration: 60
+  estimatedEffort: 1
+  delegatable: true
+  automationPotential: "high"
+}
+
+step Analysis {
+  description: "Analyze client situation and prepare recommendations"
+  partOf: CoreDeliveryProcess
+  performedBy: SeniorConsultant
+  duration: 240
+  estimatedEffort: 4
+  dependsOn: [Intake]
+  delegatable: false
+  automationPotential: "low"
+}
+
+step Delivery {
+  description: "Deliver solution to client"
+  partOf: CoreDeliveryProcess
+  performedBy: SeniorConsultant
+  duration: 120
+  estimatedEffort: 3
+  dependsOn: [Analysis]
+  deliverables: ["Client deliverable", "Supporting documentation"]
+  delegatable: false
+  automationPotential: "low"
+}
+
+step Review {
+  description: "Collect feedback and close engagement"
+  partOf: CoreDeliveryProcess
+  performedBy: Analyst
+  duration: 60
+  estimatedEffort: 1
+  dependsOn: [Delivery]
+  delegatable: true
+  automationPotential: "medium"
+}
+
+// ============================================
+// SYSTEM
+// ============================================
+
+system PrimarySystem {
+  description: "Primary tool used in delivery"
+  type: "saas"
+  vendor: "VendorName"
+  usedBy: [CoreTeam]
+  supports: [CoreDeliveryProcess]
+  cost: { monthly: 200, annual: 2400 }
+}
+
+// ============================================
+// OBJECTIVE & METRIC
+// ============================================
+
+objective GrowRevenue {
+  description: "Grow annual recurring revenue"
+  type: "financial"
+  target: {
+    metric: "ARR"
+    current: 200000
+    target: 1000000
+    deadline: "2026-12-31"
+  }
+  measuredBy: [ARR, MRR]
+  contributedBy: [
+    CoreOffering with { impact: 1.0 }
+  ]
+  meta: { confidence: "high", source: "client_interview" }
+}
+
+metric ARR {
+  description: "Annual Recurring Revenue"
+  type: "financial"
+  unit: "EUR"
+  calculation: "SUM(mrr * 12)"
+  targets: { current: 200000, q4: 1000000 }
+  measurement: { frequency: "monthly", source: "CRM", owner: "CEO" }
+}
+
+metric MRR {
+  description: "Monthly Recurring Revenue"
+  type: "financial"
+  unit: "EUR"
+  measurement: { frequency: "monthly", source: "CRM" }
+}
+
+metric ConversionRate {
+  description: "% of qualified prospects who become clients"
+  type: "operational"
+  unit: "percentage"
+  targets: { current: 0.30, target: 0.45 }
+  measurement: { frequency: "monthly", source: "CRM" }
+}

@@ -1,0 +1,484 @@
+# advanced_model.csl
+# Full-featured CSL model demonstrating all 16 entity types, all major relationships,
+# multi-tier packaging, processes with steps, journeys, and objectives with metrics.
+# Company: Nexara — a B2B SaaS company serving mid-market professional services firms.
+
+version: "1.0"
+author: "CSL Examples"
+description: "Full advanced CSL model — all entity types and relationship patterns"
+
+# ── Company ────────────────────────────────────────────────────────────────────
+
+company Nexara {
+  industry: "Professional Services Software"
+  size: "scale-up"
+  stage: "growth"
+  description: "B2B SaaS platform for project-based professional services firms"
+}
+
+# ── Markets ────────────────────────────────────────────────────────────────────
+
+market ProfessionalServicesMarket {
+  region: "North America, Europe"
+  size: 18000000000
+  description: "Software for consulting, legal, accounting, and engineering firms"
+}
+
+market MidMarketSegment {
+  region: "North America"
+  size: 6000000000
+  description: "Mid-market subset of professional services software"
+}
+
+# ── Customer Segments ──────────────────────────────────────────────────────────
+
+segment MidMarketConsultingFirms {
+  description: "Consulting firms with 50–500 employees running complex multi-project engagements"
+  size: 45000
+  operatesIn: ProfessionalServicesMarket
+}
+
+segment LegalAndAccountingFirms {
+  description: "Legal and accounting firms that need matter-based time and billing"
+  size: 30000
+  operatesIn: ProfessionalServicesMarket
+}
+
+segment FreelancerNetworks {
+  description: "Platforms managing 100+ independent consultants with variable billing"
+  size: 12000
+  operatesIn: MidMarketSegment
+}
+
+# ── Outcomes ───────────────────────────────────────────────────────────────────
+
+outcome ImproveProjectProfitability {
+  description: "Increase project gross margin by identifying scope creep and non-billable work early"
+  type: "financial"
+  measuredBy: ProjectGrossMargin
+}
+
+outcome ReduceRevenueLeakage {
+  description: "Capture all billable hours and eliminate unbilled work"
+  type: "efficiency"
+  measuredBy: BillableUtilisationRate
+}
+
+outcome ShortenInvoiceCycle {
+  description: "Reduce time from project completion to paid invoice"
+  type: "efficiency"
+  measuredBy: DaysSalesOutstanding
+}
+
+outcome IncreaseClientRetention {
+  description: "Improve client satisfaction and reduce churn through transparent delivery"
+  type: "growth"
+  measuredBy: NetRevenueRetention
+}
+
+# ── Metrics ────────────────────────────────────────────────────────────────────
+
+metric ProjectGrossMargin {
+  description: "Revenue minus direct project costs, expressed as a percentage"
+  unit: "percent"
+  target: 55
+  baseline: 42
+  frequency: "monthly"
+}
+
+metric BillableUtilisationRate {
+  description: "Percentage of logged hours that are billed to clients"
+  unit: "percent"
+  target: 85
+  baseline: 71
+  frequency: "monthly"
+}
+
+metric DaysSalesOutstanding {
+  description: "Average number of days between project close and payment receipt"
+  unit: "days"
+  target: 21
+  baseline: 38
+  frequency: "monthly"
+}
+
+metric NetRevenueRetention {
+  description: "Retained + expansion revenue divided by prior period revenue"
+  unit: "percent"
+  target: 115
+  baseline: 102
+  frequency: "quarterly"
+}
+
+metric TimeToOnboard {
+  description: "Days from contract signed to first live project in Nexara"
+  unit: "days"
+  target: 7
+  baseline: 21
+  frequency: "monthly"
+}
+
+# ── Objectives ─────────────────────────────────────────────────────────────────
+
+objective GrowAnnualRecurringRevenue {
+  description: "Reach $30M ARR by end of fiscal year"
+  timeframe: "FY2025"
+  measuredBy: [NetRevenueRetention, BillableUtilisationRate]
+  achievedThrough: [ProjectIntelligencePlatform, ClientPortal]
+}
+
+objective ReduceChurnBelow5Percent {
+  description: "Reduce annual gross churn below 5%"
+  timeframe: "FY2025"
+  measuredBy: NetRevenueRetention
+  achievedThrough: ClientPortal
+}
+
+# ── Offerings ──────────────────────────────────────────────────────────────────
+
+offering ProjectIntelligencePlatform {
+  description: "Core project management, time-tracking, and profitability analytics platform"
+  type: "saas"
+  targets: MidMarketConsultingFirms
+  delivers: [ImproveProjectProfitability, ReduceRevenueLeakage]
+  requires: ClientPortal
+}
+
+offering ClientPortal {
+  description: "Self-service portal for end clients to view project status, approve deliverables, and pay invoices"
+  type: "saas"
+  targets: [MidMarketConsultingFirms, LegalAndAccountingFirms]
+  delivers: [ShortenInvoiceCycle, IncreaseClientRetention]
+}
+
+offering FreelancerEdition {
+  description: "Lightweight version optimised for managing distributed freelancer networks"
+  type: "saas"
+  targets: FreelancerNetworks
+  delivers: [ReduceRevenueLeakage, ShortenInvoiceCycle]
+}
+
+# ── Packages ───────────────────────────────────────────────────────────────────
+
+package Essentials {
+  tier: "entry"
+  price: 49
+  billingCycle: "monthly"
+  currency: "USD"
+  partOf: ProjectIntelligencePlatform
+  userLimit: 10
+  features: [
+    "Unlimited projects",
+    "Time tracking",
+    "Basic invoicing",
+    "Standard reports",
+    "Email support"
+  ]
+}
+
+package Professional {
+  tier: "standard"
+  price: 129
+  billingCycle: "monthly"
+  currency: "USD"
+  partOf: ProjectIntelligencePlatform
+  userLimit: 50
+  features: [
+    "All Essentials features",
+    "Profitability analytics",
+    "Budget vs. actuals",
+    "Client portal access",
+    "Integrations: Xero, QuickBooks",
+    "Priority support"
+  ]
+}
+
+package Enterprise {
+  tier: "premium"
+  price: 0
+  billingCycle: "annual"
+  currency: "USD"
+  partOf: ProjectIntelligencePlatform
+  features: [
+    "All Professional features",
+    "Unlimited users",
+    "Custom roles and permissions",
+    "SSO / SAML",
+    "Dedicated CSM",
+    "SLA: 99.9% uptime",
+    "Custom integrations via API"
+  ]
+}
+
+package FreelancerStarter {
+  tier: "entry"
+  price: 79
+  billingCycle: "monthly"
+  currency: "USD"
+  partOf: FreelancerEdition
+  userLimit: 25
+  features: [
+    "Contractor onboarding",
+    "Rate cards",
+    "Timesheet approval",
+    "Auto-invoicing"
+  ]
+}
+
+# ── Pricing Models ──────────────────────────────────────────────────────────────
+
+pricingModel PerSeatSubscription {
+  type: "per-seat"
+  description: "Monthly or annual subscription priced per active user seat"
+  discountPolicy: "Annual billing gives 20% discount vs. monthly"
+}
+
+pricingModel UsageBased {
+  type: "usage-based"
+  description: "Billing tied to number of active projects and API calls for Enterprise tier"
+}
+
+# ── Capabilities ───────────────────────────────────────────────────────────────
+
+capability TimeAndExpenseCapture {
+  description: "Mobile and web time tracking with expense logging, approval workflows, and audit trail"
+  maturityLevel: "optimised"
+  supports: [ProjectIntelligencePlatform, FreelancerEdition]
+}
+
+capability ProjectProfitabilityEngine {
+  description: "Real-time margin calculation, budget monitoring, and scope-creep detection"
+  maturityLevel: "operational"
+  supports: ProjectIntelligencePlatform
+  dependsOn: TimeAndExpenseCapture
+}
+
+capability InvoicingAndBilling {
+  description: "Draft-to-paid invoice lifecycle including partial billing and retainer management"
+  maturityLevel: "operational"
+  supports: [ProjectIntelligencePlatform, ClientPortal]
+  dependsOn: TimeAndExpenseCapture
+}
+
+capability ClientCollaborationHub {
+  description: "Project visibility portal: milestones, deliverable approvals, and payment gateway"
+  maturityLevel: "scaling"
+  supports: ClientPortal
+  dependsOn: InvoicingAndBilling
+}
+
+capability IntegrationLayer {
+  description: "Bidirectional sync with Xero, QuickBooks, Salesforce, HubSpot, and Slack via REST API"
+  maturityLevel: "operational"
+  supports: [ProjectIntelligencePlatform, FreelancerEdition]
+}
+
+capability AnalyticsAndReporting {
+  description: "Configurable dashboards and scheduled reports for firm-level and project-level KPIs"
+  maturityLevel: "scaling"
+  supports: ProjectIntelligencePlatform
+  dependsOn: ProjectProfitabilityEngine
+}
+
+# ── Systems ────────────────────────────────────────────────────────────────────
+
+system CorePlatformAPI {
+  description: "RESTful API serving all product surfaces: web app, mobile, client portal, and third-party integrations"
+  type: "internal"
+  uses: [TimeAndExpenseCapture, ProjectProfitabilityEngine, InvoicingAndBilling]
+}
+
+system DataWarehouse {
+  description: "Redshift-based analytical data store for reporting and ML feature pipelines"
+  type: "internal"
+  uses: AnalyticsAndReporting
+}
+
+system AuthService {
+  description: "OAuth 2.0 / SAML identity and access management service"
+  type: "internal"
+}
+
+system StripePayments {
+  description: "Third-party payment processing for invoice collection"
+  type: "external"
+  uses: InvoicingAndBilling
+}
+
+# ── Teams ──────────────────────────────────────────────────────────────────────
+
+team ProductEngineering {
+  size: 28
+  description: "Core platform development across web, mobile, and API"
+  ownedBy: Nexara
+  owns: [TimeAndExpenseCapture, ProjectProfitabilityEngine, InvoicingAndBilling]
+}
+
+team GrowthAndRevenue {
+  size: 18
+  description: "Sales, marketing, and revenue operations"
+  ownedBy: Nexara
+}
+
+team CustomerSuccess {
+  size: 12
+  description: "Onboarding, adoption, and retention across all customer segments"
+  ownedBy: Nexara
+  owns: ClientCollaborationHub
+}
+
+team DataPlatform {
+  size: 6
+  description: "Data engineering and analytics infrastructure"
+  ownedBy: Nexara
+  owns: AnalyticsAndReporting
+}
+
+team Integrations {
+  size: 5
+  description: "Partner integrations and API ecosystem"
+  ownedBy: Nexara
+  owns: IntegrationLayer
+}
+
+# ── Roles ──────────────────────────────────────────────────────────────────────
+
+role SeniorProductEngineer {
+  description: "Leads feature delivery from design to production"
+  performedBy: ProductEngineering
+}
+
+role AccountExecutive {
+  description: "Manages outbound pipeline and closes mid-market deals"
+  performedBy: GrowthAndRevenue
+}
+
+role CustomerSuccessManager {
+  description: "Owns post-sale relationship, onboarding, and renewal"
+  performedBy: CustomerSuccess
+}
+
+role SolutionsEngineer {
+  description: "Technical pre-sales and implementation support"
+  performedBy: GrowthAndRevenue
+}
+
+# ── Processes ──────────────────────────────────────────────────────────────────
+
+process CustomerOnboarding {
+  description: "End-to-end process from contract signature to first live project"
+  ownedBy: CustomerSuccess
+  performedBy: CustomerSuccessManager
+  measuredBy: TimeToOnboard
+}
+
+step ContractHandoff {
+  description: "Sales-to-CS handoff: CRM deal marked Closed-Won, CS assigned"
+  order: 1
+  partOf: CustomerOnboarding
+}
+
+step KickoffCall {
+  description: "30-minute onboarding call to align scope, integrations, and launch date"
+  order: 2
+  partOf: CustomerOnboarding
+  dependsOn: ContractHandoff
+}
+
+step WorkspaceConfiguration {
+  description: "CS configures team roles, project templates, and billing settings"
+  order: 3
+  partOf: CustomerOnboarding
+  dependsOn: KickoffCall
+}
+
+step IntegrationSetup {
+  description: "Connect accounting and CRM systems via Integration Layer"
+  order: 4
+  partOf: CustomerOnboarding
+  dependsOn: WorkspaceConfiguration
+}
+
+step TrainingAndHandover {
+  description: "Product walkthrough session and self-serve resource pack delivered"
+  order: 5
+  partOf: CustomerOnboarding
+  dependsOn: IntegrationSetup
+}
+
+step GoLiveConfirmation {
+  description: "Customer creates first live project; CS marks onboarding complete"
+  order: 6
+  partOf: CustomerOnboarding
+  dependsOn: TrainingAndHandover
+}
+
+process QuarterlyBusinessReview {
+  description: "Regular strategic touchpoint with Enterprise customers to review outcomes and plan expansion"
+  ownedBy: CustomerSuccess
+  performedBy: CustomerSuccessManager
+}
+
+step PrepareQBRDeck {
+  description: "Pull utilisation, margin, and NRR data from Analytics; build slide deck"
+  order: 1
+  partOf: QuarterlyBusinessReview
+}
+
+step DeliverQBRSession {
+  description: "60-minute video call with economic buyer and project leads"
+  order: 2
+  partOf: QuarterlyBusinessReview
+  dependsOn: PrepareQBRDeck
+}
+
+step CaptureExpansionOpportunities {
+  description: "Log any upgrade or cross-sell opportunities in CRM"
+  order: 3
+  partOf: QuarterlyBusinessReview
+  dependsOn: DeliverQBRSession
+}
+
+# ── Customer Journey ────────────────────────────────────────────────────────────
+
+journey MidMarketBuyerJourney {
+  description: "Full lifecycle from awareness to advocacy for a mid-market consulting firm"
+  targets: MidMarketConsultingFirms
+  stages: [
+    {
+      name: "Awareness"
+      touchpoints: ["Content marketing", "LinkedIn ads", "G2 reviews"]
+      goal: "Prospect learns about Nexara and profitability use case"
+    },
+    {
+      name: "Evaluation"
+      touchpoints: ["Free trial", "Demo call", "Competitor comparison"]
+      goal: "Prospect validates fit through 14-day trial and live demo"
+    },
+    {
+      name: "Purchase"
+      touchpoints: ["Proposal", "Legal review", "Contract signature"]
+      goal: "Deal closed; Professional or Enterprise plan selected"
+    },
+    {
+      name: "Onboarding"
+      touchpoints: ["Kickoff call", "Configuration sessions", "Training"]
+      goal: "Customer live within 7 days; first project created"
+    },
+    {
+      name: "Adoption"
+      touchpoints: ["In-app guidance", "Monthly check-in", "Feature releases"]
+      goal: "70%+ team utilisation and first profitability report generated"
+    },
+    {
+      name: "Expansion"
+      touchpoints: ["QBR", "Upsell proposal", "CSM recommendation"]
+      goal: "Customer upgrades seats or adds Client Portal module"
+    },
+    {
+      name: "Advocacy"
+      touchpoints: ["Case study", "G2 review request", "Referral programme"]
+      goal: "Customer provides public reference and refers two new prospects"
+    }
+  ]
+}

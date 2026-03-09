@@ -1,0 +1,75 @@
+// ============================================
+// CSL Template: Team & Role Entities
+// Usage: One team block per organizational unit.
+//        Add a role block for each distinct
+//        responsibility profile within the team.
+// ============================================
+
+team TeamName {
+  description: "What this team does and what they are accountable for"
+
+  // Roles that exist within this team
+  roles: [RoleA, RoleB]
+
+  // Capabilities this team owns (links to capability entities)
+  owns: [CapabilityA, CapabilityB]
+
+  // Headcount
+  size: {
+    current: 3          // current number of people
+    target: 5           // planned headcount
+  }
+
+  // Capacity
+  capacity: {
+    billableHours: 120  // billable hours per month per person
+    utilization: 0.75   // utilized fraction (0–1)
+  }
+
+  // Org structure
+  structure: {
+    leadRole: RoleA     // role that leads this team
+    reportingTo: "CEO"  // who this team reports to (string, not a reference)
+  }
+
+  meta: {
+    confidence: "high"
+    source: "client_interview"
+    lastReviewed: "2024-01-01"
+    notes: ""
+  }
+  status: "active"
+}
+
+// ============================================
+// Role Template (one per distinct responsibility)
+// ============================================
+
+role RoleName {
+  description: "One sentence on what this role is responsible for"
+
+  responsibilities: [
+    "Primary responsibility",
+    "Secondary responsibility",
+    "Additional responsibility"
+  ]
+
+  // Required capability levels for this role
+  capabilities: [
+    CapabilityA with { level: expert },          // level: basic | intermediate | advanced | expert
+    CapabilityB with { level: advanced }
+  ]
+
+  // Compensation
+  compensation: {
+    type: "salary_bonus"                // salary_only | salary_bonus | hourly | salary_equity
+    range: [80000, 120000]              // [min, max] annual
+  }
+
+  meta: {
+    confidence: "medium"
+    source: "document_analysis"
+    notes: ""
+  }
+  status: "active"
+}

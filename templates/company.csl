@@ -1,0 +1,29 @@
+// ============================================
+// CSL Template: Company Entity
+// Usage: Copy this block and fill in all fields.
+//        Remove fields you don't have data for.
+//        Replace placeholder names (PascalCase)
+//        with real entity names.
+// ============================================
+
+company CompanyName {
+  name: "Full Legal / Trading Name"
+  description: "One sentence describing what the company does and who it serves"
+  headquarters: "City, Country"
+  founded: 2020                         // year as a number
+
+  markets: [MarketA, MarketB]           // reference market entities
+  offerings: [OfferingA, OfferingB]     // reference offering entities
+  objectives: [ObjectiveA, ObjectiveB]  // reference objective entities
+
+  meta: {
+    confidence: "high"                  // high | medium | low
+    source: "client_interview"          // client_interview | document_analysis | workshop | assumption
+    lastReviewed: "2024-01-01"          // ISO date
+    reviewer: "your_name"
+    tags: ["core"]
+    notes: "Any additional context"
+  }
+  status: "active"                      // draft | validated | active | deprecated
+  doc: "knowledge/company.md"           // optional: link to detailed doc
+}
