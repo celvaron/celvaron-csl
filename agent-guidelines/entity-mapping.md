@@ -180,6 +180,10 @@ A process is a repeatable operational workflow.
 | Automated steps | `automation.automated` | [string list] | — |
 | Manual steps | `automation.manual` | [string list] | — |
 
+> ❌ **Not valid on `process`:** `requires`, `contributesTo`
+> - `process.requires` is **E215** — only `offering` may declare `requires`. Capabilities needed by a process are modelled by the capability declaring `supports: [OfferingName]`.
+> - `process.contributesTo` is **E216** — only `offering` and `capability` may link to objectives. If this process serves a strategic goal, place `contributesTo` on the offering or capability it supports.
+
 ---
 
 ### 2.8 Step
@@ -202,6 +206,10 @@ A step is a single atomic activity inside a process.
 | Criteria for success | `successCriteria` | [string list] | — |
 | Can be delegated to a junior? | `delegatable` | boolean | — |
 | Automation potential | `automationPotential` | `low`/`medium`/`high` | — |
+
+> ❌ **Not valid on `step`:** `requires`, `contributesTo`
+> - A step inherits the offering-level `requires` through the process and capability chain. Do not add `requires` directly to a step.
+> - `contributesTo` applies at offering/capability level only, not at the individual step level.
 
 ---
 

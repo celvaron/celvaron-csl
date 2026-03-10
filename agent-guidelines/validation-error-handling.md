@@ -105,6 +105,29 @@ These errors indicate incomplete modeling. When detected:
 
 ---
 
+### 4.3 Relationship Type Restrictions
+
+These are hard errors. Every reference field is only valid on specific source entity types. Using a field on the wrong entity type must be flagged immediately — these violations are not detectable as reference errors (E101/E102) and require a separate type-source check.
+
+| Rule | Error Code | Message |
+|---|---|---|
+| `requires` used on any entity other than `offering` | E215 | `{type}:{name} uses 'requires' but only offering may declare requires. Did you mean capability.supports: [offering]?` |
+| `contributesTo` used on any entity other than `offering` or `capability` | E216 | `{type}:{name} uses 'contributesTo' but only offering and capability may link to objectives. Move contributesTo to the relevant offering or capability.` |
+| `targets` used on any entity other than `offering` | E217 | `{type}:{name} uses 'targets' but only offering may target segments` |
+| `delivers` used on any entity other than `offering` | E218 | `{type}:{name} uses 'delivers' but only offering may deliver outcomes` |
+| `ownedBy` used on any entity other than `capability` | E219 | `{type}:{name} uses 'ownedBy' but only capability may declare ownedBy. Use team.owns for the inverse.` |
+| `achievedThrough` used on any entity other than `outcome` | E220 | `{type}:{name} uses 'achievedThrough' but only outcome may declare achievedThrough` |
+| `partOf` used on any entity other than `step` | E221 | `{type}:{name} uses 'partOf' but only step may declare partOf` |
+
+### 4.4 Handling Type Restriction Errors
+
+When a type restriction error is found:
+1. Flag with the appropriate code (E215–E221)
+2. Identify the correct fix from the table in `syntax-structure.md` section 11
+3. The most common pair to watch for: `process.requires` (→ E215) and `process.contributesTo` (→ E216)
+
+---
+
 ## 5. Layer 4: Semantic Warnings
 
 These are not blocking but indicate potential issues with the business model.
@@ -121,6 +144,8 @@ These are not blocking but indicate potential issues with the business model.
 | Package has no target segments | W008 | `{package} has no targets field. Who is this package designed for?` |
 | Journey phase has no conversion tracking | W009 | `Journey {journey} is missing conversion metrics` |
 | Orphan entity (no edges) | W010 | `{type}:{name} is not referenced by any other entity. It may be disconnected from the model` |
+| `process` uses `requires` field | W011 | `{process} declares requires, which is only valid on offering. To express that a process depends on a capability, ensure that capability declares supports: [OfferingName]` |
+| `process` or `step` uses `contributesTo` field | W012 | `{type}:{name} declares contributesTo, which is only valid on offering and capability. Move contributesTo to the offering or capability that owns this objective link.` |
 
 ---
 

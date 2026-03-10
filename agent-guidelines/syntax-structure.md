@@ -450,7 +450,6 @@ process EntityName {
   performedBy: team ref               // required
   uses: [system refs]
   supports: [offering refs]
-  contributesTo: [objective refs]
   steps: [step refs]                  // required (≥1)
   metrics: {
     avgDuration: number
@@ -629,3 +628,33 @@ journey EntityName {
   meta: { ... }
 }
 ```
+
+---
+
+## 11. Relationship Field Restrictions
+
+Every reference field has a fixed set of **allowed source entity types** and a fixed **target entity type**. Using a reference field on the wrong entity type is a hard error (E215–E221).
+
+| Field | Allowed on | Points to | ❌ Common mistake |
+|---|---|---|---|
+| `targets` | `offering` | `segment` | `process.targets`, `capability.targets` |
+| `operatesIn` | `offering` | `market` | `capability.operatesIn`, `process.operatesIn` |
+| `delivers` | `offering` | `outcome` | `process.delivers`, `capability.delivers` |
+| `requires` | `offering` | `capability` | **`process.requires` ← very common error** |
+| `supports` | `capability`, `process` | `offering` | `team.supports`, `step.supports` |
+| `ownedBy` | `capability` | `team` | `process.ownedBy`, `offering.ownedBy` |
+| `dependsOn` | `capability` → `capability`; `step` → `step` | capability / step | mixing source or target types |
+| `contributesTo` | `offering`, `capability` | `objective` | **`process.contributesTo` ← very common error** |
+| `measuredBy` | `offering`, `objective`, `outcome` | `metric` | `capability.measuredBy`, `process.measuredBy` |
+| `achievedThrough` | `outcome` | `offering` | `objective.achievedThrough`, `capability.achievedThrough` |
+| `performedBy` | `process`, `step` | `team` / `role` | `capability.performedBy`, `offering.performedBy` |
+| `uses` | `process`, `step` | `system` | `capability.uses`, `offering.uses` |
+| `partOf` | `step` | `process` | `capability.partOf`, `offering.partOf` |
+| `owns` | `team` | `capability` | `offering.owns`, `process.owns` |
+
+### Key Rules to Memorise
+
+- **`requires` is offering-only.** A `process` cannot declare `requires`. If you want to indicate that a process relies on a capability, model it by having the capability declare `supports: [OfferingName]` — the relationship is implicit through the offering.
+- **`contributesTo` is offering/capability-only.** A `process` or `step` cannot declare `contributesTo`. Strategic objectives are linked from the offering or capability level, not from individual operational processes.
+- **`supports` is valid on `process`.** `process.supports: [OfferingName]` is explicitly allowed and is the correct way to link a process to the offering it serves.
+- **`ownedBy` is capability-only.** Use `team.owns: [CapabilityName]` for the inverse direction if needed.
