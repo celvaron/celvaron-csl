@@ -41,6 +41,12 @@ Rules:
 9. Set status: "draft" and meta.confidence: "low" on any entity with missing or 
    estimated data.
 10. Output only valid CSL. Do not include explanations outside of CSL comments.
+11. NEVER use 'requires' on a process or step. 'requires' is only valid on offering.
+    If a process depends on a capability, express it as: capability { supports: [OfferingName] }
+12. NEVER use 'contributesTo' on a process or step. 'contributesTo' is only valid on
+    offering and capability. Move contributesTo to the relevant offering or capability.
+13. NEVER use 'targets', 'delivers', or 'operatesIn' on a process, capability, or step.
+    These fields are only valid on offering.
 ```
 
 ---
@@ -98,6 +104,29 @@ For large companies, generate the model incrementally rather than all at once:
 6. **Pass 6 — Objectives + Metrics:** Add strategic layer
 
 After each pass, validate before proceeding to the next.
+
+---
+
+### 1.7 Post-Generation Self-Audit Checklist
+
+Before outputting the final CSL model, iterate over every entity in the draft and run these checks. Do not skip this step.
+
+**For every `process` and `step` entity:**
+- [ ] Does it contain `requires`? → **Remove it.** Move the capability to `capability { supports: [OfferingName] }` or `offering { requires: [CapabilityName] }`.
+- [ ] Does it contain `contributesTo`? → **Remove it.** Move it to `offering { contributesTo: [ObjectiveName] }` or `capability { contributesTo: [ObjectiveName] }`.
+
+**For every entity that is NOT `offering`:**
+- [ ] Does it contain `targets`? → **Remove it.** Only `offering` may target segments.
+- [ ] Does it contain `delivers`? → **Remove it.** Only `offering` delivers outcomes.
+- [ ] Does it contain `operatesIn`? → **Remove it.** Only `offering` operates in markets.
+
+**For every entity that is NOT `capability`:**
+- [ ] Does it contain `ownedBy`? → **Remove it.** Only `capability` declares `ownedBy`. Use `team { owns: [CapabilityName] }` for the inverse if needed.
+
+**For every entity reference in the model:**
+- [ ] Is the referenced entity declared somewhere in the model? If not, either declare it or replace with a `// TODO` comment.
+
+Only proceed to output after all checks pass.
 
 ---
 
