@@ -1,6 +1,6 @@
 # Celvaron CSL — Company Specification Language
 
-An open standard for describing companies as structured, machine-readable models.
+A syntax reference for describing companies as structured, machine-readable models.
 
 ---
 
@@ -48,50 +48,35 @@ celvaron-csl/
 ├── docs/
 │   ├── csl_specification.md            ← Full CSL language specification
 │   ├── csl_quick_reference.md          ← Syntax cheatsheet and examples
-│   ├── tool-usage.md                   ← Guide to using the provided tools
 │   ├── architecture.md                 ← System architecture and project layout
-│   ├── visualization.md                ← All diagram views explained
 │   ├── as-is-to-be.md                  ← AS-IS / TO-BE modeling workflow
 │   ├── complete-example.md             ← Full worked example (Acme Consulting)
 │   └── best-practices.md               ← Modeling guidelines and patterns
 │
-├── agent-guidelines/
-│   ├── entity-mapping.md               ← How to map data to CSL entities
-│   ├── syntax-structure.md             ← Syntax rules and structure overview
-│   ├── validation-error-handling.md    ← Validation rules and error handling
-│   ├── transformation-pipeline.md      ← From raw data to CSL to outputs
-│   ├── output-formats.md               ← Supported output formats
-│   ├── best-practices-templates.md     ← Modeling best practices
-│   └── agent-specific-recommendations.md ← AI/RPA/bot-specific guidance
-│
 ├── templates/
-│   ├── company.csl
+│   ├── company.csl                     ← Starting point for a new company model
 │   ├── offering.csl
 │   ├── team.csl
 │   ├── package.csl
 │   ├── process.csl
 │   └── value_chain.csl
 │
-├── examples/
-│   ├── minimal_model.csl               ← Smallest valid CSL model
-│   ├── advanced_model.csl              ← Full-featured model
-│   ├── as_is_model.csl                 ← Current state example
-│   └── to_be_model.csl                 ← Future state example
-│
-└── tools/
-    ├── validate_csl.py                 ← Validate a .csl file
-    ├── transform_csl.py                ← Transform CSL to graph model JSON
-    ├── generate_diagram.py             ← Generate Mermaid diagrams from model
-    └── parse_input.py                  ← Convert CSV/JSON input to CSL
+└── examples/
+    ├── minimal_model.csl               ← Smallest valid CSL model
+    ├── advanced_model.csl              ← Full-featured model
+    ├── as_is_model.csl                 ← Current state example
+    └── to_be_model.csl                 ← Future state example
 ```
 
 ---
 
-## Quick Start
-
-### 1. Write a minimal CSL model
+## Quick Example
 
 ```csl
+version: "1.0"
+author: "Your Name"
+description: "Minimal company model"
+
 company MyCompany {
   name: "My Company"
   offerings: [WebsiteRedesign]
@@ -104,11 +89,11 @@ segment SmallBusinesses {
 outcome FasterLead {
   type: "revenue_increase"
   baseline: { metric: "ConversionRate", value: 0.02 }
-  target: { metric: "ConversionRate", value: 0.06, timeframe: "3 months" }
+  target:   { metric: "ConversionRate", value: 0.06, timeframe: "3 months" }
 }
 
 offering WebsiteRedesign {
-  targets: [SmallBusinesses]
+  targets:  [SmallBusinesses]
   delivers: [FasterLead]
   requires: [WebDesign]
 }
@@ -122,28 +107,10 @@ team DesignTeam {
 }
 
 package Starter {
-  offering: WebsiteRedesign
-  tier: "entry"
-  pricing: { model: "fixed_project", basePrice: 2500 }
+  offering:  WebsiteRedesign
+  tier:      "entry"
+  pricing:   { model: "fixed_project", basePrice: 2500 }
 }
-```
-
-### 2. Validate it
-
-```bash
-python tools/validate_csl.py examples/minimal_model.csl
-```
-
-### 3. Transform to graph model
-
-```bash
-python tools/transform_csl.py examples/minimal_model.csl -o output/graph.json
-```
-
-### 4. Generate a diagram
-
-```bash
-python tools/generate_diagram.py output/graph.json --view architecture -o output/diagram.md
 ```
 
 ---
@@ -157,7 +124,7 @@ python tools/generate_diagram.py output/graph.json --view architecture -o output
 | `segment` | Customer group |
 | `market` | Geographic or industry market |
 | `outcome` | Business transformation an offering delivers |
-| `capability` | Organizational skill/ability |
+| `capability` | Organizational skill or ability |
 | `process` | Repeatable operational workflow |
 | `step` | Atomic task inside a process |
 | `team` | Group of people who own work |
@@ -178,25 +145,12 @@ python tools/generate_diagram.py output/graph.json --view architecture -o output
 | [docs/csl_specification.md](docs/csl_specification.md) | Full language specification — all entity types, relationships, syntax rules |
 | [docs/csl_quick_reference.md](docs/csl_quick_reference.md) | Syntax cheatsheet — quick lookup while writing models |
 | [docs/architecture.md](docs/architecture.md) | System architecture, processing pipeline, recommended project layout |
-| [docs/visualization.md](docs/visualization.md) | All diagram views, when to use each, audience guide |
 | [docs/as-is-to-be.md](docs/as-is-to-be.md) | AS-IS / TO-BE modeling, change tracking, delta computation |
 | [docs/complete-example.md](docs/complete-example.md) | Full worked example of a real company model end-to-end |
 | [docs/best-practices.md](docs/best-practices.md) | Modeling guidelines, naming conventions, common mistakes |
-| [docs/tool-usage.md](docs/tool-usage.md) | Full CLI reference for all tools |
-
----
-
-## For Agents & Software
-
-If you are an AI agent or software system consuming this repository, start with:
-
-1. [agent-guidelines/entity-mapping.md](agent-guidelines/entity-mapping.md) — understand how data maps to CSL
-2. [agent-guidelines/syntax-structure.md](agent-guidelines/syntax-structure.md) — learn the syntax rules
-3. [agent-guidelines/transformation-pipeline.md](agent-guidelines/transformation-pipeline.md) — understand the processing pipeline
-4. [agent-guidelines/agent-specific-recommendations.md](agent-guidelines/agent-specific-recommendations.md) — agent-specific guidance
 
 ---
 
 ## License
 
-Open source under MIT License. 
+Open source under MIT License.
