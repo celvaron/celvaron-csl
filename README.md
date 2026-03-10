@@ -53,6 +53,15 @@ celvaron-csl/
 │   ├── complete-example.md             ← Full worked example (Acme Consulting)
 │   └── best-practices.md               ← Modeling guidelines and patterns
 │
+├── agent-guidelines/
+│   ├── entity-mapping.md               ← How to map data to CSL entities
+│   ├── syntax-structure.md             ← Syntax rules and structure overview
+│   ├── validation-error-handling.md    ← Validation rules and error handling
+│   ├── transformation-pipeline.md      ← From raw data to CSL
+│   ├── output-formats.md               ← Supported output formats
+│   ├── best-practices-templates.md     ← Modeling best practices
+│   └── agent-specific-recommendations.md ← AI/agent-specific guidance
+│
 ├── templates/
 │   ├── company.csl                     ← Starting point for a new company model
 │   ├── offering.csl
@@ -148,6 +157,17 @@ package Starter {
 | [docs/as-is-to-be.md](docs/as-is-to-be.md) | AS-IS / TO-BE modeling, change tracking, delta computation |
 | [docs/complete-example.md](docs/complete-example.md) | Full worked example of a real company model end-to-end |
 | [docs/best-practices.md](docs/best-practices.md) | Modeling guidelines, naming conventions, common mistakes |
+
+---
+
+## For Agents & AI
+
+If you are an AI agent writing or processing CSL models, start with:
+
+1. [agent-guidelines/entity-mapping.md](agent-guidelines/entity-mapping.md) — how to map real-world data to CSL entities
+2. [agent-guidelines/syntax-structure.md](agent-guidelines/syntax-structure.md) — syntax rules and structure
+3. [agent-guidelines/transformation-pipeline.md](agent-guidelines/transformation-pipeline.md) — processing pipeline overview
+4. [agent-guidelines/agent-specific-recommendations.md](agent-guidelines/agent-specific-recommendations.md) — agent-specific guidance
 
 ---
 
