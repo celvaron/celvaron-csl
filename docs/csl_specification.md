@@ -16,6 +16,7 @@
 7. [Visualization System](#7-visualization-system)
 8. [AS-IS / TO-BE Modeling](#8-as-is--to-be-modeling)
 9. [Best Practices](#9-best-practices)
+10. [Quotera Export](#10-quotera-export)
 
 ---
 
@@ -65,11 +66,43 @@ company AcmeConsulting {
   markets: [Europe, NorthAmerica]
   offerings: [ServiceProductization, StrategyAdvisory]
   objectives: [GrowARR, ImproveMargins]
+  caseStudies: [AgencyRebrand, FinTechLaunch]
+
+  voice: {
+    tone: "Direct and confident. We speak like senior practitioners, not salespeople."
+    formality: "semi-formal"          // formal | semi-formal | conversational
+    perspective: "we"                 // we | third-person
+    language: "en"                    // pl | en | both
+    dos: [
+      "Lead with outcomes, not activities",
+      "Use concrete numbers and examples"
+    ]
+    donts: [
+      "Avoid buzzwords and empty superlatives",
+      "No passive voice"
+    ]
+    examplePhrases: [
+      "We help founders turn custom work into scalable products.",
+      "Our clients typically 3× their capacity within six months."
+    ]
+  }
 }
 ```
 
 **Required fields:** `name`  
 **Constraint:** Unique per model file
+
+**`voice` block fields:**
+
+| Field | Type | Description |
+|---|---|---|
+| `tone` | string | 2–3 sentences describing the overall writing style |
+| `formality` | `formal` / `semi-formal` / `conversational` | Register for written communications |
+| `perspective` | `we` / `third-person` | Grammatical person used in copy |
+| `language` | `pl` / `en` / `both` | Primary language(s) |
+| `dos` | [string list] | Writing behaviours to adopt |
+| `donts` | [string list] | Writing behaviours to avoid |
+| `examplePhrases` | [string list] | Short illustrative phrases in the desired tone |
 
 ---
 
@@ -532,7 +565,37 @@ metric ARR {
 
 ---
 
-### 2.17 Shared Attributes
+### 2.17 `caseStudy`
+
+A past client engagement used as social proof in proposals.
+
+```csl
+caseStudy AgencyRebrand {
+  client: "NorthLight Agency"
+  industry: "Marketing & Creative"
+  challenge: "Stuck in hourly billing — founder handling all client work personally"
+  solution: "Designed three packaged service tiers and trained delivery team over 8 weeks"
+  outcome: "Revenue up 40% in 6 months; founder now works on the business, not in it"
+  technologies: ["Notion", "Stripe", "HubSpot"]
+}
+```
+
+**Fields:**
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `client` | string | ✅ | Client or project name |
+| `industry` | string | — | Industry or sector |
+| `challenge` | string | ✅ | Problem the client faced |
+| `solution` | string | ✅ | What was built or delivered |
+| `outcome` | string | ✅ | Measurable results or key success indicators |
+| `technologies` | [string list] | — | Tools and technologies involved |
+
+**Rule:** `caseStudy` entities are referenced from `company.caseStudies`. They are not graph nodes in the main model — they are company content used solely for proposal generation.
+
+---
+
+### 2.18 Shared Attributes
 
 All entities support:
 

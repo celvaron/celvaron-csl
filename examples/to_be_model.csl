@@ -20,6 +20,29 @@ company Veloxa {
   size: "mid-market"
   stage: "growth"
   description: "HR platform for distributed teams: onboarding, payroll, and compliance"
+  caseStudies: [SeriesAScaleup, GlobalEnterprisePayroll, ContractorFleetMigration]
+
+  voice: {
+    tone: "Clear and direct. We speak like experienced HR engineers, not salespeople. We lead with outcomes and back every claim with data."
+    formality: "semi-formal"
+    perspective: "we"
+    language: "en"
+    dos: [
+      "Lead with outcomes and measurable impact",
+      "Use concrete numbers: days, percentages, headcount",
+      "Speak to HR leaders and engineering teams equally"
+    ]
+    donts: [
+      "No HR buzzwords or empty aspirational language",
+      "Never say \"seamless\" or \"best-in-class\"",
+      "No passive voice"
+    ]
+    examplePhrases: [
+      "We cut time-to-hire in a new country from 14 days to 3.",
+      "Payroll runs across 40 jurisdictions with zero manual steps.",
+      "Our clients reduce HR admin load by 80% within the first quarter."
+    ]
+  }
 }
 
 # ── Market (unchanged) ───────────────────────────────────────────────────────
@@ -470,4 +493,33 @@ objective ScaleContractorRevenue {
   measuredBy: ContractorOnboardingTime
   achievedThrough: ContractorWorkerPlatform
   changeType: "new"
+}
+
+# ── Case Studies ——————————————————————————————————————————————————
+
+caseStudy SeriesAScaleup {
+  client: "Northlight Labs"
+  industry: "FinTech"
+  challenge: "Hiring in 8 new countries simultaneously while keeping a 3-person HR team — onboarding took 3–4 weeks per country"
+  solution: "Deployed GlobalOnboardingModule and HRSelfServicePortal across all 8 jurisdictions; migrated payroll from 3 separate local providers to the Payroll & Compliance Engine"
+  outcome: "Time-to-hire in a new country dropped from 22 days to 3; HR team scaled from 3 to 5 while headcount grew 4×"
+  technologies: ["GlobalOnboardingModule", "PayrollAndComplianceEngine", "HRSelfServicePortal"]
+}
+
+caseStudy GlobalEnterprisePayroll {
+  client: "Meridian Manufacturing Group"
+  industry: "Manufacturing & Industrial"
+  challenge: "Running payroll across 12 European jurisdictions using a patchwork of local vendors and spreadsheets, resulting in 4–5 compliance findings per month"
+  solution: "Migrated all 12 jurisdictions to the Payroll & Compliance Engine with automated compliance resolution; introduced the Analytics Suite for real-time payroll dashboards"
+  outcome: "Compliance violations dropped to zero within 2 months; payroll cycle reduced from 3 days to 4 hours"
+  technologies: ["PayrollAndComplianceEngine", "AnalyticsAndInsightsSuite", "VeloxaMicroservicesAPI"]
+}
+
+caseStudy ContractorFleetMigration {
+  client: "Stackflow Platforms"
+  industry: "Developer Tooling / SaaS"
+  challenge: "Managing 200+ contractors across 18 countries with no unified system — payments delayed, compliance gaps in 6 jurisdictions"
+  solution: "Deployed ContractorWorkerPlatform for onboarding, time tracking, and payment disbursement; integrated Stripe for multi-currency payouts"
+  outcome: "Contractor onboarding reduced from 12 days to 2; payment delays eliminated; compliance gaps resolved in all 18 jurisdictions"
+  technologies: ["ContractorWorkerPlatform", "StripePayments", "ComplianceMonitoring"]
 }

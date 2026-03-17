@@ -344,3 +344,146 @@ Use the graph model JSON as input. Pick a simple HTML template and fill sections
 | Spreadsheet analysis | CSV export |
 | Stakeholder presentation | HTML report |
 | Version control and editing | CSL source |
+| Proposal generation (Quotera) | Quotera Company Profile Export |
+
+---
+
+## 10. Quotera Company Profile Export
+
+Generates the 5 Markdown knowledge files consumed by [celvaron-quotera](https://github.com/celvaron/celvaron-quotera) to auto-write proposals. Use the `/export-company-profile` command to produce these files from any TO-BE model.
+
+### Output location
+
+```
+exports/{company-slug}/knowledge/
+  about.md
+  services.md
+  pricing-guidelines.md
+  tone-of-voice.md
+  case-studies.md
+```
+
+Copy the entire `exports/{company-slug}/knowledge/` folder to `companies/{company-slug}/knowledge/` in the Quotera repo.
+
+---
+
+### Entity → Quotera file mapping
+
+| Quotera file | CSL source |
+|---|---|
+| `about.md` | `company` (name, description, industry, size, headquarters, founded, website) · top `objective` as mission · `capability` entities where `differentiator: true` as core differentiators · `system` entities as technology & approach |
+| `services.md` | `offering` entities (name, description, targets→segment names as context, delivers→outcome names); offerings with `changeType: "retired"` or `"removed"` → **What We Don't Do** section |
+| `pricing-guidelines.md` | `package` entities (tier, price, billingCycle, currency, features); `pricingModel` entities (type, description); `meta.notes` for any agent pricing rules |
+| `tone-of-voice.md` | `company.voice` block (tone, formality, perspective, language, dos, donts, examplePhrases) |
+| `case-studies.md` | `caseStudy` entities (client, industry, challenge, solution, outcome, technologies) |
+
+---
+
+### Output file format
+
+Each generated file must **exactly match** the Quotera `_template/knowledge/` placeholder structure so the proposal-writer agent can consume it without modification.
+
+#### `about.md`
+
+```markdown
+# About {COMPANY}
+
+## Company Overview
+{company.description} — {company.industry}, {company.stage}.
+Headquartered in {company.headquarters}. Founded {company.founded}.
+
+## Mission
+{company.objectives[0].description}
+
+## Key Facts
+- **Founded:** {company.founded}
+- **Team size:** {sum of team.size for all teams}
+- **Headquarters:** {company.headquarters}
+- **Website:** {company.website if present}
+
+## Core Differentiators
+{bullet list of capabilities where differentiator: true, one per bullet}
+
+## Technology & Approach
+{bullet list of system entities with type + description}
+```
+
+#### `services.md`
+
+```markdown
+# Services — {COMPANY}
+
+## Service Areas
+{one H2 section per active offering: name as heading, description as body,
+ outcomes it delivers as "Key outcomes:", packages as "Available tiers:"}
+
+## What We Don't Do
+{one bullet per offering with changeType: "retired" or "removed"}
+```
+
+#### `pricing-guidelines.md`
+
+```markdown
+# Pricing Guidelines — {COMPANY}
+
+## Packages
+{table: package name | tier | price | billingCycle | currency}
+
+## Package Details
+{one paragraph per package listing features[]}
+
+## Pricing Model
+{pricingModel entities: type + description}
+
+## Notes for Agents
+{any meta.notes from pricingModel or company entity relevant to pricing}
+```
+
+#### `tone-of-voice.md`
+
+```markdown
+# Tone of Voice — {COMPANY}
+
+## Overall Tone
+{company.voice.tone}
+
+## Voice Characteristics
+- **Formality:** {company.voice.formality}
+- **Perspective:** {company.voice.perspective}
+- **Language:** {company.voice.language}
+
+## Do
+{bullet list from company.voice.dos}
+
+## Don't
+{bullet list from company.voice.donts}
+
+## Example Phrases
+{bullet list from company.voice.examplePhrases}
+```
+
+#### `case-studies.md`
+
+```markdown
+# Case Studies — {COMPANY}
+
+{for each caseStudy entity:}
+## {caseStudy.client}
+- **Industry:** {caseStudy.industry}
+- **Challenge:** {caseStudy.challenge}
+- **Solution:** {caseStudy.solution}
+- **Outcome:** {caseStudy.outcome}
+- **Technologies:** {caseStudy.technologies joined by ", "}
+```
+
+---
+
+### Fallback rules when data is missing
+
+| Missing data | Fallback |
+|---|---|
+| `company.voice` not present | Generate `tone-of-voice.md` with placeholder comments only |
+| No `caseStudy` entities | Generate `case-studies.md` with placeholder comments only |
+| No `differentiator: true` capabilities | List all active capabilities in Core Differentiators |
+| No `pricingModel` entities | Omit Pricing Model section from `pricing-guidelines.md` |
+| `company.website` not present | Omit Website from Key Facts |

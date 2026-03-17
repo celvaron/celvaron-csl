@@ -15,6 +15,25 @@ company CompanyName {
   markets: [MarketA, MarketB]           // reference market entities
   offerings: [OfferingA, OfferingB]     // reference offering entities
   objectives: [ObjectiveA, ObjectiveB]  // reference objective entities
+  caseStudies: [CaseStudyA, CaseStudyB] // reference caseStudy entities
+
+  voice: {
+    tone: "2–3 sentences describing the overall writing style"
+    formality: "semi-formal"            // formal | semi-formal | conversational
+    perspective: "we"                   // we | third-person
+    language: "en"                      // pl | en | both
+    dos: [
+      "Lead with outcomes, not activities",
+      "Use concrete numbers and examples"
+    ]
+    donts: [
+      "No buzzwords or empty superlatives",
+      "No passive voice"
+    ]
+    examplePhrases: [
+      "Example sentence in the desired tone."
+    ]
+  }
 
   meta: {
     confidence: "high"                  // high | medium | low

@@ -40,8 +40,23 @@ The mapping process follows this order:
 | List of geographic or industry markets | `markets` | [market references] | — |
 | List of services or products offered | `offerings` | [offering references] | — |
 | Strategic goals | `objectives` | [objective references] | — |
+| Past client engagements (social proof) | `caseStudies` | [caseStudy references] | — |
 
 **Rule:** There is exactly one `company` entity per model.
+
+#### 2.1.1 `voice` Block (nested in `company`)
+
+Captures the company's tone of voice for use in proposal generation.
+
+| Input Data Field | CSL Field | Type | Required |
+|---|---|---|---|
+| Overall writing style description | `voice.tone` | string | — |
+| Register / formality level | `voice.formality` | `formal`/`semi-formal`/`conversational` | — |
+| Grammatical person used in copy | `voice.perspective` | `we`/`third-person` | — |
+| Primary language(s) | `voice.language` | `pl`/`en`/`both` | — |
+| Writing behaviours to adopt | `voice.dos` | [string list] | — |
+| Writing behaviours to avoid | `voice.donts` | [string list] | — |
+| Illustrative phrases in desired tone | `voice.examplePhrases` | [string list] | — |
 
 ---
 
@@ -388,3 +403,24 @@ When converting raw names to CSL entity names:
 | "CRM (HubSpot)" | `CRM` |
 | "B2B SaaS Advisory" | `B2BSaaSAdvisory` |
 | "2nd Offering" | `SecondOffering` (never start with a number) |
+
+---
+
+## 6. Case Study Mapping
+
+### 2.X CaseStudy
+
+A `caseStudy` represents a past client engagement used as social proof in proposals.
+
+| Input Data Field | CSL Field | Type | Required |
+|---|---|---|---|
+| Client or project name | `client` | string | ✅ |
+| Industry / sector | `industry` | string | — |
+| Problem the client faced | `challenge` | string | ✅ |
+| What was built or delivered | `solution` | string | ✅ |
+| Measurable results / success indicators | `outcome` | string | ✅ |
+| Tools and technologies involved | `technologies` | [string list] | — |
+
+**Rule:** Name using PascalCase describing the engagement — e.g. `AgencyRebrand`, `FinTechPlatformLaunch`. Reference from `company.caseStudies`.
+
+**Note:** `caseStudy` entities are **not** graph nodes in the main structural model. They are company content entities used solely for proposal generation output. Do not create relationship edges from `caseStudy` to other entity types.

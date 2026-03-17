@@ -1,0 +1,16 @@
+// ============================================
+// CSL Template: CaseStudy Entity
+// Usage: One block per past client engagement.
+//        Reference from company.caseStudies.
+//        Used by /export-company-profile to
+//        generate Quotera's case-studies.md.
+// ============================================
+
+caseStudy EngagementName {
+  client: "Client or Project Name"
+  industry: "e.g. Marketing & Creative, FinTech, eCommerce"
+  challenge: "One sentence: what problem did the client face?"
+  solution: "One sentence: what did the company build or deliver?"
+  outcome: "One sentence: measurable results or key success indicators"
+  technologies: ["Tool A", "Tool B", "Platform C"]
+}

@@ -32,7 +32,8 @@ Raw Input Data
         ├─ Diagrams (Mermaid / SVG)
         ├─ Reports (HTML / Markdown)
         ├─ Exports (Neo4j Cypher, CSV, etc.)
-        └─ AI Reasoning Context
+        ├─ AI Reasoning Context
+        └─ Quotera Company Profile Export  ← /export-company-profile command
 ```
 
 ---
