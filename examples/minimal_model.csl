@@ -55,10 +55,15 @@ offering AdminAutomationTool {
 
 package StarterPlan {
   tier: "entry"
-  price: 29
-  billingCycle: "monthly"
-  partOf: AdminAutomationTool
-  features: [
+  position: 1
+  offering: AdminAutomationTool
+  pricing: {
+    model: "tiered_subscription"
+    basePrice: 29
+    currency: "USD"
+    paymentTerms: "monthly"
+  }
+  includes: [
     "Up to 5 automations",
     "Email reminders",
     "Basic reporting"
@@ -69,7 +74,10 @@ package StarterPlan {
 
 capability TaskAutomation {
   description: "Core automation engine that runs scheduled and triggered tasks"
-  maturityLevel: "operational"
+  ownedBy: ProductTeam
+  maturity: {
+    current: "advanced"
+  }
   supports: AdminAutomationTool
 }
 
@@ -77,6 +85,5 @@ capability TaskAutomation {
 
 team ProductTeam {
   size: 3
-  ownedBy: Minimal
   owns: TaskAutomation
 }

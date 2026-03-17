@@ -357,13 +357,12 @@ def generate_mermaid(graph, view_type):
 
     lines = ["graph TD"]
     for node in filtered_nodes:
-        label = f'{node["name"]} ({node["type"]})'
-        safe_id = node["id"].replace(":", "_")
-        lines.append(f'    {safe_id}["{label}"]')
+        name = node["name"]
+        lines.append(f'    {name}["{name}"]')
 
     for edge in filtered_edges:
-        from_id = edge["from"].replace(":", "_")
-        to_id = edge["to"].replace(":", "_")
+        from_id = edge["from"].split(":")[1]
+        to_id = edge["to"].split(":")[1]
         lines.append(f"    {from_id} --> {to_id}")
 
     return "\n".join(lines)

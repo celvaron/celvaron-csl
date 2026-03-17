@@ -108,6 +108,7 @@ offering GlobalOnboardingModule {
   type: "saas"
   targets: RemoteFirstScaleups
   delivers: SimplifyGlobalOnboarding
+  requires: [OnboardingWorkflowEngine, LocalisedContractGeneration]
 }
 
 offering PayrollAndComplianceEngine {
@@ -115,6 +116,7 @@ offering PayrollAndComplianceEngine {
   type: "saas"
   targets: [RemoteFirstScaleups, EnterpriseMultinational]
   delivers: EnsurePayrollCompliance
+  requires: [PayrollProcessingCore, ComplianceMonitoring]
 }
 
 offering HRSelfServicePortal {
@@ -122,6 +124,7 @@ offering HRSelfServicePortal {
   type: "saas"
   targets: RemoteFirstScaleups
   delivers: ReduceHRAdminLoad
+  requires: [EmployeeSelfService]
 }
 
 # ── Current Packages ───────────────────────────────────────────────────────────
@@ -129,12 +132,16 @@ offering HRSelfServicePortal {
 
 package ScaleupPlan {
   tier: "standard"
-  price: 12
-  billingCycle: "monthly"
-  currency: "USD"
+  position: 1
+  offering: GlobalOnboardingModule
   description: "Per employee/month — includes Onboarding and basic HR portal"
-  partOf: GlobalOnboardingModule
-  features: [
+  pricing: {
+    model: "tiered_subscription"
+    basePrice: 12
+    currency: "USD"
+    paymentTerms: "monthly, per employee"
+  }
+  includes: [
     "Onboarding workflows for 40+ countries",
     "Local contract templates",
     "Basic HR self-service",
@@ -143,13 +150,18 @@ package ScaleupPlan {
 }
 
 package EnterprisePlan {
-  tier: "premium"
-  price: 0
-  billingCycle: "annual"
-  currency: "USD"
+  tier: "enterprise"
+  position: 2
+  offering: PayrollAndComplianceEngine
   description: "Custom pricing per employee — full platform including Payroll & Compliance"
-  partOf: PayrollAndComplianceEngine
-  features: [
+  // Custom pricing — contact sales. basePrice is a placeholder minimum.
+  pricing: {
+    model: "usage_based"
+    basePrice: 1
+    currency: "USD"
+    paymentTerms: "annual, custom quote"
+  }
+  includes: [
     "All ScaleupPlan features",
     "Payroll processing in 25 countries",
     "Compliance monitoring",
@@ -163,39 +175,57 @@ package EnterprisePlan {
 
 capability OnboardingWorkflowEngine {
   description: "Configurable workflow engine that orchestrates multi-step onboarding across jurisdictions"
-  maturityLevel: "operational"
+  ownedBy: CoreEngineering
+  maturity: {
+    current: "advanced"
+  }
   supports: GlobalOnboardingModule
 }
 
 capability LocalisedContractGeneration {
   description: "Template library for 40+ country-specific employment contracts — currently partially manual"
-  maturityLevel: "developing"
+  ownedBy: CoreEngineering
+  maturity: {
+    current: "basic"
+  }
   supports: GlobalOnboardingModule
   dependsOn: OnboardingWorkflowEngine
 }
 
 capability PayrollProcessingCore {
   description: "Automated payroll calculation engine — covers 25 jurisdictions, 14 have manual review steps"
-  maturityLevel: "operational"
+  ownedBy: CoreEngineering
+  maturity: {
+    current: "advanced"
+  }
   supports: PayrollAndComplianceEngine
 }
 
 capability ComplianceMonitoring {
   description: "Rule-based compliance checking run post-payroll — flagging but not yet auto-resolving issues"
-  maturityLevel: "developing"
+  ownedBy: CoreEngineering
+  maturity: {
+    current: "basic"
+  }
   supports: PayrollAndComplianceEngine
   dependsOn: PayrollProcessingCore
 }
 
 capability EmployeeSelfService {
   description: "Leave management and document access for employees — expense claims manually processed"
-  maturityLevel: "developing"
+  ownedBy: HROperations
+  maturity: {
+    current: "basic"
+  }
   supports: HRSelfServicePortal
 }
 
 capability ReportingAndInsights {
   description: "Standard HR reports — no real-time dashboards or custom report builder yet"
-  maturityLevel: "initial"
+  ownedBy: CoreEngineering
+  maturity: {
+    current: "basic"
+  }
   supports: [GlobalOnboardingModule, PayrollAndComplianceEngine]
 }
 
@@ -224,46 +254,39 @@ system ExternalPayrollPartners {
 team CoreEngineering {
   size: 22
   description: "Monolith-owning engineering team — managing both feature work and tech debt"
-  ownedBy: Veloxa
   owns: [OnboardingWorkflowEngine, PayrollProcessingCore, ComplianceMonitoring]
 }
 
 team HROperations {
   size: 8
   description: "Internal HR ops team that supports customers via manual processes where automation gaps exist"
-  ownedBy: Veloxa
   owns: EmployeeSelfService
 }
 
 team ProductAndDesign {
   size: 7
   description: "Product management and UX design across all modules"
-  ownedBy: Veloxa
 }
 
 team CustomerSupport {
   size: 10
   description: "L1/L2 support team — high volume due to manual process gaps"
-  ownedBy: Veloxa
 }
 
 # ── Roles ──────────────────────────────────────────────────────────────────────
 
 role ComplianceSpecialist {
   description: "Manually reviews flagged payroll compliance issues before they reach customers"
-  performedBy: HROperations
 }
 
 role CustomerSupportAgent {
   description: "Handles onboarding and payroll queries — currently 60% of tickets are repetitive"
-  performedBy: CustomerSupport
 }
 
 # ── Current Process ────────────────────────────────────────────────────────────
 
 process MonthlyPayrollRun {
   description: "End-to-end payroll execution — currently takes 3 days due to manual review steps"
-  ownedBy: HROperations
   performedBy: ComplianceSpecialist
   measuredBy: ComplianceViolationRate
 }
@@ -272,12 +295,14 @@ step CollectPayrollInputs {
   description: "Gather timesheets, expense claims, and contract changes from HR portal and partner systems"
   order: 1
   partOf: MonthlyPayrollRun
+  performedBy: ComplianceSpecialist
 }
 
 step RunPayrollCalculation {
   description: "Execute automated payroll calculation in core engine"
   order: 2
   partOf: MonthlyPayrollRun
+  performedBy: ComplianceSpecialist
   dependsOn: CollectPayrollInputs
 }
 
@@ -285,6 +310,7 @@ step ManualComplianceReview {
   description: "Compliance specialist manually reviews flagged items — currently 2.3 issues per run"
   order: 3
   partOf: MonthlyPayrollRun
+  performedBy: ComplianceSpecialist
   dependsOn: RunPayrollCalculation
 }
 
@@ -292,6 +318,7 @@ step PartnerPayrollSubmission {
   description: "Submit payroll to external partners for 14 unsupported jurisdictions"
   order: 4
   partOf: MonthlyPayrollRun
+  performedBy: ComplianceSpecialist
   dependsOn: ManualComplianceReview
 }
 
@@ -299,6 +326,7 @@ step PayslipDistribution {
   description: "Generate and distribute payslips via email — not yet available in self-service portal"
   order: 5
   partOf: MonthlyPayrollRun
+  performedBy: ComplianceSpecialist
   dependsOn: PartnerPayrollSubmission
 }
 

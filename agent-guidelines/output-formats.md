@@ -129,14 +129,14 @@ Segments → Offerings → Capabilities → Teams
 
 ```mermaid
 graph TD
-    segment_FounderLedAgencies["FounderLedAgencies (segment)"]
-    offering_ServiceProductization["ServiceProductization (offering)"]
-    capability_ServiceDesign["ServiceDesign (capability)"]
-    team_StrategyTeam["StrategyTeam (team)"]
+    FounderLedAgencies["FounderLedAgencies"]
+    ServiceProductization["ServiceProductization"]
+    ServiceDesign["ServiceDesign"]
+    StrategyTeam["StrategyTeam"]
 
-    offering_ServiceProductization --> segment_FounderLedAgencies
-    capability_ServiceDesign --> offering_ServiceProductization
-    team_StrategyTeam --> capability_ServiceDesign
+    ServiceProductization --> FounderLedAgencies
+    ServiceDesign --> ServiceProductization
+    StrategyTeam --> ServiceDesign
 ```
 
 #### 4.2 Process Flow View
@@ -145,13 +145,13 @@ Process → Steps with dependency arrows
 
 ```mermaid
 graph LR
-    step_KickoffScheduling["KickoffScheduling"]
-    step_DiscoveryPreparation["DiscoveryPreparation"]
-    step_KickoffWorkshop["KickoffWorkshop"]
-    step_FirstDeliverable["FirstDeliverable"]
+    KickoffScheduling["KickoffScheduling"]
+    DiscoveryPreparation["DiscoveryPreparation"]
+    KickoffWorkshop["KickoffWorkshop"]
+    FirstDeliverable["FirstDeliverable"]
 
-    step_DiscoveryPreparation --> step_KickoffWorkshop
-    step_KickoffWorkshop --> step_FirstDeliverable
+    DiscoveryPreparation --> KickoffWorkshop
+    KickoffWorkshop --> FirstDeliverable
 ```
 
 #### 4.3 Value Stream View
@@ -160,26 +160,26 @@ Offerings → Outcomes → Economic Value
 
 ```mermaid
 graph LR
-    offering_ServiceProductization["ServiceProductization"]
-    outcome_RevenueGrowth["RevenueGrowth (revenue_increase)"]
-    outcome_ReducedFounderDep["ReducedFounderDependency (capacity_expansion)"]
+    ServiceProductization["ServiceProductization"]
+    RevenueGrowth["RevenueGrowth"]
+    ReducedFounderDependency["ReducedFounderDependency"]
 
-    offering_ServiceProductization --> outcome_RevenueGrowth
-    offering_ServiceProductization --> outcome_ReducedFounderDep
+    ServiceProductization --> RevenueGrowth
+    ServiceProductization --> ReducedFounderDependency
 ```
 
 #### 4.4 Package Architecture View
 
 ```mermaid
 graph TD
-    offering_ServiceProductization["ServiceProductization"]
-    pkg_Foundation["FoundationPackage (entry) €12,900"]
-    pkg_Agency["AgencyPackage (standard) €24,900"]
-    pkg_Complete["CompleteSystem (premium) €39,900"]
+    ServiceProductization["ServiceProductization"]
+    FoundationPackage["FoundationPackage €12,900"]
+    AgencyPackage["AgencyPackage €24,900"]
+    CompleteSystem["CompleteSystem €39,900"]
 
-    offering_ServiceProductization --> pkg_Foundation
-    offering_ServiceProductization --> pkg_Agency
-    offering_ServiceProductization --> pkg_Complete
+    ServiceProductization --> FoundationPackage
+    ServiceProductization --> AgencyPackage
+    ServiceProductization --> CompleteSystem
 ```
 
 ### Generation Output Format

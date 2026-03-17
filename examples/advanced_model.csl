@@ -140,14 +140,15 @@ offering ProjectIntelligencePlatform {
   description: "Core project management, time-tracking, and profitability analytics platform"
   type: "saas"
   targets: MidMarketConsultingFirms
+  requires: [TimeAndExpenseCapture, ProjectProfitabilityEngine, InvoicingAndBilling]
   delivers: [ImproveProjectProfitability, ReduceRevenueLeakage]
-  requires: ClientPortal
 }
 
 offering ClientPortal {
   description: "Self-service portal for end clients to view project status, approve deliverables, and pay invoices"
   type: "saas"
   targets: [MidMarketConsultingFirms, LegalAndAccountingFirms]
+  requires: [ClientCollaborationHub, InvoicingAndBilling]
   delivers: [ShortenInvoiceCycle, IncreaseClientRetention]
 }
 
@@ -155,6 +156,7 @@ offering FreelancerEdition {
   description: "Lightweight version optimised for managing distributed freelancer networks"
   type: "saas"
   targets: FreelancerNetworks
+  requires: [TimeAndExpenseCapture, IntegrationLayer]
   delivers: [ReduceRevenueLeakage, ShortenInvoiceCycle]
 }
 
@@ -162,44 +164,57 @@ offering FreelancerEdition {
 
 package Essentials {
   tier: "entry"
-  price: 49
-  billingCycle: "monthly"
-  currency: "USD"
-  partOf: ProjectIntelligencePlatform
-  userLimit: 10
-  features: [
+  position: 1
+  offering: ProjectIntelligencePlatform
+  pricing: {
+    model: "tiered_subscription"
+    basePrice: 49
+    currency: "USD"
+    paymentTerms: "monthly"
+  }
+  includes: [
     "Unlimited projects",
     "Time tracking",
     "Basic invoicing",
     "Standard reports",
-    "Email support"
+    "Email support",
+    "Up to 10 users"
   ]
 }
 
 package Professional {
   tier: "standard"
-  price: 129
-  billingCycle: "monthly"
-  currency: "USD"
-  partOf: ProjectIntelligencePlatform
-  userLimit: 50
-  features: [
+  position: 2
+  offering: ProjectIntelligencePlatform
+  pricing: {
+    model: "tiered_subscription"
+    basePrice: 129
+    currency: "USD"
+    paymentTerms: "monthly"
+  }
+  includes: [
     "All Essentials features",
     "Profitability analytics",
     "Budget vs. actuals",
     "Client portal access",
     "Integrations: Xero, QuickBooks",
-    "Priority support"
+    "Priority support",
+    "Up to 50 users"
   ]
 }
 
 package Enterprise {
-  tier: "premium"
-  price: 0
-  billingCycle: "annual"
-  currency: "USD"
-  partOf: ProjectIntelligencePlatform
-  features: [
+  tier: "enterprise"
+  position: 3
+  offering: ProjectIntelligencePlatform
+  // Custom pricing — contact sales. basePrice is a placeholder minimum.
+  pricing: {
+    model: "usage_based"
+    basePrice: 1
+    currency: "USD"
+    paymentTerms: "annual, custom quote"
+  }
+  includes: [
     "All Professional features",
     "Unlimited users",
     "Custom roles and permissions",
@@ -212,13 +227,16 @@ package Enterprise {
 
 package FreelancerStarter {
   tier: "entry"
-  price: 79
-  billingCycle: "monthly"
-  currency: "USD"
-  partOf: FreelancerEdition
-  userLimit: 25
-  features: [
-    "Contractor onboarding",
+  position: 1
+  offering: FreelancerEdition
+  pricing: {
+    model: "tiered_subscription"
+    basePrice: 79
+    currency: "USD"
+    paymentTerms: "monthly"
+  }
+  includes: [
+    "Contractor onboarding (up to 25 users)",
     "Rate cards",
     "Timesheet approval",
     "Auto-invoicing"
@@ -242,40 +260,58 @@ pricingModel UsageBased {
 
 capability TimeAndExpenseCapture {
   description: "Mobile and web time tracking with expense logging, approval workflows, and audit trail"
-  maturityLevel: "optimised"
+  ownedBy: ProductEngineering
+  maturity: {
+    current: "expert"
+  }
   supports: [ProjectIntelligencePlatform, FreelancerEdition]
 }
 
 capability ProjectProfitabilityEngine {
   description: "Real-time margin calculation, budget monitoring, and scope-creep detection"
-  maturityLevel: "operational"
+  ownedBy: ProductEngineering
+  maturity: {
+    current: "advanced"
+  }
   supports: ProjectIntelligencePlatform
   dependsOn: TimeAndExpenseCapture
 }
 
 capability InvoicingAndBilling {
   description: "Draft-to-paid invoice lifecycle including partial billing and retainer management"
-  maturityLevel: "operational"
+  ownedBy: ProductEngineering
+  maturity: {
+    current: "advanced"
+  }
   supports: [ProjectIntelligencePlatform, ClientPortal]
   dependsOn: TimeAndExpenseCapture
 }
 
 capability ClientCollaborationHub {
   description: "Project visibility portal: milestones, deliverable approvals, and payment gateway"
-  maturityLevel: "scaling"
+  ownedBy: CustomerSuccess
+  maturity: {
+    current: "intermediate"
+  }
   supports: ClientPortal
   dependsOn: InvoicingAndBilling
 }
 
 capability IntegrationLayer {
   description: "Bidirectional sync with Xero, QuickBooks, Salesforce, HubSpot, and Slack via REST API"
-  maturityLevel: "operational"
+  ownedBy: Integrations
+  maturity: {
+    current: "advanced"
+  }
   supports: [ProjectIntelligencePlatform, FreelancerEdition]
 }
 
 capability AnalyticsAndReporting {
   description: "Configurable dashboards and scheduled reports for firm-level and project-level KPIs"
-  maturityLevel: "scaling"
+  ownedBy: DataPlatform
+  maturity: {
+    current: "intermediate"
+  }
   supports: ProjectIntelligencePlatform
   dependsOn: ProjectProfitabilityEngine
 }
@@ -310,34 +346,29 @@ system StripePayments {
 team ProductEngineering {
   size: 28
   description: "Core platform development across web, mobile, and API"
-  ownedBy: Nexara
   owns: [TimeAndExpenseCapture, ProjectProfitabilityEngine, InvoicingAndBilling]
 }
 
 team GrowthAndRevenue {
   size: 18
   description: "Sales, marketing, and revenue operations"
-  ownedBy: Nexara
 }
 
 team CustomerSuccess {
   size: 12
   description: "Onboarding, adoption, and retention across all customer segments"
-  ownedBy: Nexara
   owns: ClientCollaborationHub
 }
 
 team DataPlatform {
   size: 6
   description: "Data engineering and analytics infrastructure"
-  ownedBy: Nexara
   owns: AnalyticsAndReporting
 }
 
 team Integrations {
   size: 5
   description: "Partner integrations and API ecosystem"
-  ownedBy: Nexara
   owns: IntegrationLayer
 }
 
@@ -345,29 +376,24 @@ team Integrations {
 
 role SeniorProductEngineer {
   description: "Leads feature delivery from design to production"
-  performedBy: ProductEngineering
 }
 
 role AccountExecutive {
   description: "Manages outbound pipeline and closes mid-market deals"
-  performedBy: GrowthAndRevenue
 }
 
 role CustomerSuccessManager {
   description: "Owns post-sale relationship, onboarding, and renewal"
-  performedBy: CustomerSuccess
 }
 
 role SolutionsEngineer {
   description: "Technical pre-sales and implementation support"
-  performedBy: GrowthAndRevenue
 }
 
 # ── Processes ──────────────────────────────────────────────────────────────────
 
 process CustomerOnboarding {
   description: "End-to-end process from contract signature to first live project"
-  ownedBy: CustomerSuccess
   performedBy: CustomerSuccessManager
   measuredBy: TimeToOnboard
 }
@@ -376,12 +402,14 @@ step ContractHandoff {
   description: "Sales-to-CS handoff: CRM deal marked Closed-Won, CS assigned"
   order: 1
   partOf: CustomerOnboarding
+  performedBy: CustomerSuccessManager
 }
 
 step KickoffCall {
   description: "30-minute onboarding call to align scope, integrations, and launch date"
   order: 2
   partOf: CustomerOnboarding
+  performedBy: CustomerSuccessManager
   dependsOn: ContractHandoff
 }
 
@@ -389,6 +417,7 @@ step WorkspaceConfiguration {
   description: "CS configures team roles, project templates, and billing settings"
   order: 3
   partOf: CustomerOnboarding
+  performedBy: CustomerSuccessManager
   dependsOn: KickoffCall
 }
 
@@ -396,6 +425,7 @@ step IntegrationSetup {
   description: "Connect accounting and CRM systems via Integration Layer"
   order: 4
   partOf: CustomerOnboarding
+  performedBy: SolutionsEngineer
   dependsOn: WorkspaceConfiguration
 }
 
@@ -403,6 +433,7 @@ step TrainingAndHandover {
   description: "Product walkthrough session and self-serve resource pack delivered"
   order: 5
   partOf: CustomerOnboarding
+  performedBy: CustomerSuccessManager
   dependsOn: IntegrationSetup
 }
 
@@ -410,12 +441,12 @@ step GoLiveConfirmation {
   description: "Customer creates first live project; CS marks onboarding complete"
   order: 6
   partOf: CustomerOnboarding
+  performedBy: CustomerSuccessManager
   dependsOn: TrainingAndHandover
 }
 
 process QuarterlyBusinessReview {
   description: "Regular strategic touchpoint with Enterprise customers to review outcomes and plan expansion"
-  ownedBy: CustomerSuccess
   performedBy: CustomerSuccessManager
 }
 
@@ -423,12 +454,14 @@ step PrepareQBRDeck {
   description: "Pull utilisation, margin, and NRR data from Analytics; build slide deck"
   order: 1
   partOf: QuarterlyBusinessReview
+  performedBy: CustomerSuccessManager
 }
 
 step DeliverQBRSession {
   description: "60-minute video call with economic buyer and project leads"
   order: 2
   partOf: QuarterlyBusinessReview
+  performedBy: CustomerSuccessManager
   dependsOn: PrepareQBRDeck
 }
 
@@ -436,6 +469,7 @@ step CaptureExpansionOpportunities {
   description: "Log any upgrade or cross-sell opportunities in CRM"
   order: 3
   partOf: QuarterlyBusinessReview
+  performedBy: AccountExecutive
   dependsOn: DeliverQBRSession
 }
 

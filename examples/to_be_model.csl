@@ -179,6 +179,7 @@ offering GlobalOnboardingModule {
   type: "saas"
   targets: [RemoteFirstScaleups, EnterpriseMultinational]
   delivers: SimplifyGlobalOnboarding
+  requires: [OnboardingWorkflowEngine, AIContractGeneration]
   changeType: "enhanced"
 }
 
@@ -187,6 +188,7 @@ offering PayrollAndComplianceEngine {
   type: "saas"
   targets: [RemoteFirstScaleups, EnterpriseMultinational]
   delivers: EnsurePayrollCompliance
+  requires: [PayrollProcessingCore, ComplianceMonitoring]
   changeType: "enhanced"
 }
 
@@ -195,6 +197,7 @@ offering HRSelfServicePortal {
   type: "saas"
   targets: [RemoteFirstScaleups, EnterpriseMultinational]
   delivers: ReduceHRAdminLoad
+  requires: [EmployeeSelfService]
   changeType: "enhanced"
 }
 
@@ -203,6 +206,7 @@ offering ContractorWorkerPlatform {
   type: "saas"
   targets: FreelanceAndContractorPlatforms
   delivers: EnableContractorManagement
+  requires: [ContractorLifecycleManagement]
   changeType: "new"
 }
 
@@ -211,6 +215,7 @@ offering AnalyticsAndInsightsSuite {
   type: "saas"
   targets: [RemoteFirstScaleups, EnterpriseMultinational]
   delivers: ImprovePeopleInsights
+  requires: [ReportingAndInsights]
   changeType: "new"
 }
 
@@ -218,12 +223,16 @@ offering AnalyticsAndInsightsSuite {
 
 package GrowthPlan {
   tier: "entry"
-  price: 9
-  billingCycle: "monthly"
-  currency: "USD"
+  position: 1
+  offering: GlobalOnboardingModule
   description: "Per employee/month — new entry tier for companies under 100 employees"
-  partOf: GlobalOnboardingModule
-  features: [
+  pricing: {
+    model: "tiered_subscription"
+    basePrice: 9
+    currency: "USD"
+    paymentTerms: "monthly, per employee"
+  }
+  includes: [
     "Onboarding workflows for 60+ countries",
     "AI contract generation",
     "Employee self-service: leave and documents",
@@ -234,12 +243,16 @@ package GrowthPlan {
 
 package ScaleupPlan {
   tier: "standard"
-  price: 15
-  billingCycle: "monthly"
-  currency: "USD"
+  position: 2
+  offering: GlobalOnboardingModule
   description: "Per employee/month — replaces legacy ScaleupPlan with expanded features"
-  partOf: [GlobalOnboardingModule, HRSelfServicePortal]
-  features: [
+  pricing: {
+    model: "tiered_subscription"
+    basePrice: 15
+    currency: "USD"
+    paymentTerms: "monthly, per employee"
+  }
+  includes: [
     "All Growth features",
     "Full expense management",
     "Payroll in 40 countries",
@@ -250,13 +263,18 @@ package ScaleupPlan {
 }
 
 package EnterprisePlan {
-  tier: "premium"
-  price: 0
-  billingCycle: "annual"
-  currency: "USD"
+  tier: "enterprise"
+  position: 3
+  offering: PayrollAndComplianceEngine
   description: "Custom pricing — expanded to include Contractor Platform and Advanced Analytics"
-  partOf: [PayrollAndComplianceEngine, AnalyticsAndInsightsSuite]
-  features: [
+  // Custom pricing — contact sales. basePrice is a placeholder minimum.
+  pricing: {
+    model: "usage_based"
+    basePrice: 1
+    currency: "USD"
+    paymentTerms: "annual, custom quote"
+  }
+  includes: [
     "All ScaleupPlan features",
     "Contractor workforce management",
     "Custom analytics and benchmarks",
@@ -270,12 +288,16 @@ package EnterprisePlan {
 
 package ContractorBasicPlan {
   tier: "entry"
-  price: 6
-  billingCycle: "monthly"
-  currency: "USD"
+  position: 1
+  offering: ContractorWorkerPlatform
   description: "Per contractor/month on the new Contractor Workforce Platform"
-  partOf: ContractorWorkerPlatform
-  features: [
+  pricing: {
+    model: "tiered_subscription"
+    basePrice: 6
+    currency: "USD"
+    paymentTerms: "monthly, per contractor"
+  }
+  includes: [
     "Contractor onboarding in 30+ countries",
     "Timesheet and approval workflows",
     "Payment disbursement",
@@ -288,14 +310,20 @@ package ContractorBasicPlan {
 
 capability OnboardingWorkflowEngine {
   description: "Configurable workflow engine covering 60+ countries — fully automated with no manual steps"
-  maturityLevel: "optimised"
+  ownedBy: PlatformEngineering
+  maturity: {
+    current: "expert"
+  }
   supports: GlobalOnboardingModule
   changeType: "enhanced"
 }
 
 capability AIContractGeneration {
   description: "LLM-powered generation of jurisdiction-specific employment contracts from role and compensation data"
-  maturityLevel: "scaling"
+  ownedBy: AIAndAutomation
+  maturity: {
+    current: "intermediate"
+  }
   supports: GlobalOnboardingModule
   dependsOn: OnboardingWorkflowEngine
   changeType: "new"
@@ -303,14 +331,20 @@ capability AIContractGeneration {
 
 capability PayrollProcessingCore {
   description: "Automated payroll covering 40 jurisdictions — all previously manual jurisdictions now natively supported"
-  maturityLevel: "optimised"
+  ownedBy: PlatformEngineering
+  maturity: {
+    current: "expert"
+  }
   supports: [PayrollAndComplianceEngine, ContractorWorkerPlatform]
   changeType: "enhanced"
 }
 
 capability ComplianceMonitoring {
   description: "Real-time compliance checking with auto-resolution for known violation types"
-  maturityLevel: "operational"
+  ownedBy: PlatformEngineering
+  maturity: {
+    current: "advanced"
+  }
   supports: PayrollAndComplianceEngine
   dependsOn: PayrollProcessingCore
   changeType: "enhanced"
@@ -318,21 +352,30 @@ capability ComplianceMonitoring {
 
 capability EmployeeSelfService {
   description: "Full self-service for leave, expenses, payslips, documents — zero HR manual steps"
-  maturityLevel: "optimised"
+  ownedBy: HROperations
+  maturity: {
+    current: "expert"
+  }
   supports: HRSelfServicePortal
   changeType: "enhanced"
 }
 
 capability ReportingAndInsights {
   description: "Real-time dashboards, custom report builder, and predictive attrition analytics"
-  maturityLevel: "operational"
+  ownedBy: DataEngineering
+  maturity: {
+    current: "advanced"
+  }
   supports: [GlobalOnboardingModule, PayrollAndComplianceEngine, AnalyticsAndInsightsSuite]
   changeType: "enhanced"
 }
 
 capability ContractorLifecycleManagement {
   description: "End-to-end contractor management: onboarding, time tracking, payments, compliance, off-boarding"
-  maturityLevel: "developing"
+  ownedBy: ContractorProducts
+  maturity: {
+    current: "basic"
+  }
   supports: ContractorWorkerPlatform
   dependsOn: [PayrollProcessingCore, ComplianceMonitoring]
   changeType: "new"
@@ -377,7 +420,6 @@ system StripePayments {
 team PlatformEngineering {
   size: 30
   description: "Owns the microservices platform — evolved from CoreEngineering with 8 new hires"
-  ownedBy: Veloxa
   owns: [OnboardingWorkflowEngine, PayrollProcessingCore, ComplianceMonitoring]
   changeType: "enhanced"
 }
@@ -385,7 +427,6 @@ team PlatformEngineering {
 team AIAndAutomation {
   size: 6
   description: "New team dedicated to AI contract generation and intelligent compliance resolution"
-  ownedBy: Veloxa
   owns: AIContractGeneration
   changeType: "new"
 }
@@ -393,7 +434,6 @@ team AIAndAutomation {
 team ContractorProducts {
   size: 8
   description: "New product team owning the entire Contractor Workforce Platform"
-  ownedBy: Veloxa
   owns: ContractorLifecycleManagement
   changeType: "new"
 }
@@ -401,7 +441,6 @@ team ContractorProducts {
 team HROperations {
   size: 4
   description: "Reduced from 8 to 4 — strategic ops only; automated workflows handle routine tasks"
-  ownedBy: Veloxa
   owns: EmployeeSelfService
   changeType: "enhanced"
 }
@@ -409,28 +448,24 @@ team HROperations {
 team ProductAndDesign {
   size: 10
   description: "Expanded product team covering Analytics Suite, Contractor Platform, and AI features"
-  ownedBy: Veloxa
   changeType: "enhanced"
 }
 
 team CustomerSuccess {
   size: 14
   description: "New dedicated CS function split from support — owns onboarding and retention"
-  ownedBy: Veloxa
   changeType: "new"
 }
 
 team CustomerSupport {
   size: 6
   description: "Reduced from 10 to 6 — AI deflection and self-service reduce ticket volume by 50%"
-  ownedBy: Veloxa
   changeType: "enhanced"
 }
 
 team DataEngineering {
   size: 5
   description: "New team owning the Analytics Platform and data pipelines"
-  ownedBy: Veloxa
   owns: ReportingAndInsights
   changeType: "new"
 }
@@ -439,7 +474,7 @@ team DataEngineering {
 
 process MonthlyPayrollRun {
   description: "Fully automated payroll execution — reduced from 3 days to 4 hours"
-  ownedBy: HROperations
+  performedBy: HROperations
   measuredBy: ComplianceViolationRate
   changeType: "enhanced"
 }
@@ -448,6 +483,7 @@ step CollectPayrollInputs {
   description: "Automated aggregation of timesheets, expenses, and contract changes — no manual steps"
   order: 1
   partOf: MonthlyPayrollRun
+  performedBy: HROperations
   changeType: "enhanced"
 }
 
@@ -455,6 +491,7 @@ step RunPayrollCalculation {
   description: "Execute automated payroll calculation with real-time compliance validation"
   order: 2
   partOf: MonthlyPayrollRun
+  performedBy: HROperations
   dependsOn: CollectPayrollInputs
 }
 
@@ -462,6 +499,7 @@ step AutomatedComplianceResolution {
   description: "Auto-resolve known compliance patterns; flag only novel exceptions for review"
   order: 3
   partOf: MonthlyPayrollRun
+  performedBy: HROperations
   dependsOn: RunPayrollCalculation
   changeType: "new"
 }
@@ -470,6 +508,7 @@ step PayslipDistribution {
   description: "Payslips published directly to employee self-service portal — no email distribution"
   order: 4
   partOf: MonthlyPayrollRun
+  performedBy: HROperations
   dependsOn: AutomatedComplianceResolution
   changeType: "enhanced"
 }
