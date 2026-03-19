@@ -71,10 +71,9 @@ celvaron-csl/
 │   └── value_chain.csl
 │
 └── examples/
-    ├── minimal_model.csl               ← Smallest valid CSL model
-    ├── advanced_model.csl              ← Full-featured model
-    ├── as_is_model.csl                 ← Current state example
-    └── to_be_model.csl                 ← Future state example
+    ├── advanced_model.csl              ← Full-featured SaaS platform model
+    ├── consulting_firm.csl             ← Boutique strategy consultancy model
+    └── ecommerce_platform.csl         ← Multi-channel e-commerce SaaS model
 ```
 
 ---
@@ -157,6 +156,7 @@ package Starter {
 | [docs/as-is-to-be.md](docs/as-is-to-be.md) | AS-IS / TO-BE modeling, change tracking, delta computation |
 | [docs/complete-example.md](docs/complete-example.md) | Full worked example of a real company model end-to-end |
 | [docs/best-practices.md](docs/best-practices.md) | Modeling guidelines, naming conventions, common mistakes |
+| [docs/entities-reference.md](docs/entities-reference.md) | Complete reference for all 16 entity types — fields, relationships, examples |
 
 ---
 
