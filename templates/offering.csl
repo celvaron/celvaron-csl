@@ -7,7 +7,7 @@
 // ============================================
 
 offering OfferingName {
-  description: "What this offering does and what transformation it creates for clients"
+  description: "What this offering does and what transformation it creates for clients"  // required
 
   // Who this offering serves (required, ≥1)
   targets: [SegmentA, SegmentB] with {
@@ -31,14 +31,11 @@ offering OfferingName {
   // Metrics that measure this offering's success
   measuredBy: [MetricA, MetricB]
 
-  // Company objectives this offering contributes to
-  contributesTo: [ObjectiveA]
-
   // Commercial data
   economics: {
-    avgDealSize: 0              // average contract or project value (currency)
+    avgDealSize: 0              // required: average contract or project value (currency)
     avgDeliveryHours: 0         // average hours to fully deliver
-    targetMargin: 0.65          // gross margin as decimal (e.g., 0.65 = 65%)
+    targetMargin: 0.65          // required: gross margin as decimal (e.g., 0.65 = 65%)
     clientLifetimeValue: 0      // average total revenue from one client
   }
 
@@ -49,9 +46,6 @@ offering OfferingName {
     clientRetention: 0.80       // % of clients who renew or continue (0–1)
     referralRate: 0.30          // % of new clients from referrals (0–1)
   }
-
-  // Packages that bundle and price this offering
-  packages: [PackageA, PackageB, PackageC]
 
   meta: {
     confidence: "medium"

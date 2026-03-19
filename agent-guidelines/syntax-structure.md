@@ -250,7 +250,7 @@ requires: [
 ### Form 3: Single reference with attribute
 
 ```csl
-contributedBy: [
+achievedThrough: [
   ServiceProductization with { impact: 0.70 }
 ]
 ```
@@ -313,18 +313,58 @@ Inline entities are not referenceable from other entities. Use only for nested, 
 
 ---
 
+## 9. File-Level Metadata
+
+A CSL file can start with an optional metadata comment block before any entity declarations:
+
+```csl
+// version: 1.2
+// author: Jane Smith
+// description: AS-IS model for Veloxa HR Tech
+// state: as-is        // as-is | to-be | target
+// date: 2025-03-01
+```
+
+These are freeform `//` comments — they are not parsed as structured fields but are preserved by tooling and visible to agents.
+
+For AS-IS / TO-BE models, each entity can carry a `changeType` annotation as a direct field:
+
+```csl
+capability WorkflowAutomation {
+  changeType: "new"     // new | enhanced | retired
+  description: "..."
+  ownedBy: TechTeam
+  maturity: { current: "basic" }
+}
+```
+
+---
+
 ## 10. Complete Entity Syntax Reference
 
 ### company
 ```csl
 company EntityName {
   name: "string"                      // required
-  description: "string"
-  headquarters: "string"
+  description: "string"               // required
+  industry: "string"                  // required (e.g. "Professional Services", "SaaS")
+  size: "startup"                     // required: startup | scale-up | mid-market | enterprise
+  stage: "growth"                     // required: idea | pre-revenue | growth | established | mature
+  headquarters: "City, Country"
   founded: number
   markets: [market refs]
   offerings: [offering refs]
   objectives: [objective refs]
+  caseStudies: [caseStudy refs]
+  voice: {
+    tone: "string"
+    formality: "semi-formal"          // formal | semi-formal | conversational
+    perspective: "we"                 // we | third-person
+    language: "en"                    // pl | en | both
+    dos: ["...", "..."]
+    donts: ["...", "..."]
+    examplePhrases: ["..."]
+  }
   meta: { ... }
   status: "draft|validated|active|deprecated"
   doc: "path/to/doc.md"
@@ -334,17 +374,16 @@ company EntityName {
 ### offering
 ```csl
 offering EntityName {
-  description: "string"
+  description: "string"               // required
   targets: [segment refs] with { ... }    // required (≥1)
   operatesIn: [market refs]
   requires: [capability refs with { proficiency, criticality }]  // required (≥1)
   delivers: [outcome refs]                // required (≥1)
   measuredBy: [metric refs]
-  contributesTo: [objective refs]
   economics: {
-    avgDealSize: number
+    avgDealSize: number                   // required
     avgDeliveryHours: number
-    targetMargin: number
+    targetMargin: number                  // required (0–1)
     clientLifetimeValue: number
   }
   performance: {
@@ -353,7 +392,6 @@ offering EntityName {
     clientRetention: number
     referralRate: number
   }
-  packages: [package refs]
   meta: { ... }
   status: "..."
   doc: "..."
@@ -363,7 +401,9 @@ offering EntityName {
 ### segment
 ```csl
 segment EntityName {
-  description: "string"
+  description: "string"               // required
+  size: number                        // required: total number of companies or people
+  operatesIn: market ref              // required: market this segment belongs to
   characteristics: {
     industry: "string"
     revenueRange: [min, max]
@@ -388,12 +428,13 @@ segment EntityName {
 market EntityName {
   description: "string"
   type: "geographic|industry|niche"
-  region: "string"
+  region: "string"                    // required
   countries: ["string list"]
-  size: {
-    estimatedCompanies: number
-    addressableMarket: number
-  }
+  size: number                        // plain TAM number, OR use nested form:
+  // size: {
+  //   estimatedCompanies: number
+  //   addressableMarket: number
+  // }
   characteristics: {
     maturity: "string"
     competition: "string"
@@ -406,12 +447,12 @@ market EntityName {
 ### outcome
 ```csl
 outcome EntityName {
-  description: "string"
+  description: "string"               // required
   type: "revenue_increase|cost_reduction|time_saving|risk_mitigation|capacity_expansion|quality_improvement|customer_satisfaction"
+  // Short aliases also accepted: financial | efficiency | growth | risk
+  measuredBy: [metric refs]           // required (≥1)
   baseline: { metric: "string", value: number, unit: "string" }
   target: { metric: "string", value: number, unit: "string", timeframe: "string" }
-  achievedThrough: [offering refs]
-  measuredBy: [metric refs]
   economicValue: {
     annualRevenue: number
     costReduction: number
@@ -427,11 +468,10 @@ outcome EntityName {
 ### capability
 ```csl
 capability EntityName {
-  description: "string"
+  description: "string"               // required
   ownedBy: team ref                   // required
-  supports: [offering refs]
   dependsOn: [capability refs]
-  maturity: { current: "basic|intermediate|advanced|expert", target: "..." }
+  maturity: { current: "basic|intermediate|advanced|expert", target: "..." }  // current required
   resources: {
     toolsUsed: [system refs]
     peopleRequired: number
@@ -446,10 +486,10 @@ capability EntityName {
 ### process
 ```csl
 process EntityName {
-  description: "string"
-  performedBy: team ref               // required
+  description: "string"               // required
+  performedBy: team or role ref       // required
+  measuredBy: metric ref              // required
   uses: [system refs]
-  supports: [offering refs]
   steps: [step refs]                  // required (≥1)
   metrics: {
     avgDuration: number
@@ -468,9 +508,10 @@ process EntityName {
 ### step
 ```csl
 step EntityName {
-  description: "string"
+  description: "string"               // required
   partOf: process ref                 // required
   performedBy: team or role ref       // required
+  order: number                       // required (1-based sequence position)
   duration: number
   estimatedEffort: number
   dependsOn: [step refs]
@@ -519,10 +560,10 @@ package EntityName {
 ### team
 ```csl
 team EntityName {
-  description: "string"
+  description: "string"               // required
+  size: number                        // required: plain number, OR nested:
+  // size: { current: number, target: number }
   roles: [role refs]
-  owns: [capability refs]
-  size: { current: number, target: number }
   capacity: { billableHours: number, utilization: number }
   structure: { leadRole: role ref, reportingTo: "string" }
   meta: { ... }
@@ -543,11 +584,9 @@ role EntityName {
 ### system
 ```csl
 system EntityName {
-  description: "string"
-  type: "saas|internal|infrastructure|custom"
+  description: "string"               // required
+  type: "saas|internal|infrastructure|custom|external"  // required
   vendor: "string"
-  usedBy: [team refs]
-  supports: [process refs]
   cost: { monthly: number, annual: number }
   integration: { connectedTo: [system refs], apiAvailable: boolean }
   meta: { ... }
@@ -557,7 +596,8 @@ system EntityName {
 ### objective
 ```csl
 objective EntityName {
-  description: "string"
+  description: "string"               // required
+  timeframe: "FY2025"                 // required (e.g. "FY2025", "Q1–Q4 2025")
   type: "financial|operational|strategic|customer"
   target: {
     metric: "string"
@@ -565,19 +605,31 @@ objective EntityName {
     target: number
     deadline: "YYYY-MM-DD"
   }
-  measuredBy: [metric refs]
-  contributedBy: [offering refs with { impact: number }]
-  initiatives: ["string list"]
+  measuredBy: [metric refs]           // required (≥1)
+  achievedThrough: [offering refs]    // required (≥1) — replaces the deprecated contributedBy
   meta: { ... }
 }
 ```
 
 ### metric
 ```csl
+// Canonical flat form (recommended):
+metric EntityName {
+  description: "string"               // required
+  unit: "string"                      // required (e.g. "EUR", "%", "days")
+  target: number                      // required
+  baseline: number                    // required
+  frequency: "monthly"                // required (daily|weekly|monthly|quarterly|per-hire|...)
+  type: "financial|operational|customer|quality|growth"
+  calculation: "string"
+  meta: { ... }
+}
+
+// Nested alternative form (also valid, for richer data):
 metric EntityName {
   description: "string"
-  type: "financial|operational|customer|quality|growth"
   unit: "string"
+  type: "financial|operational|customer|quality|growth"
   calculation: "string"
   targets: { current: number, q1: number, q2: number, q3: number, q4: number }
   measurement: { frequency: "string", source: "string", owner: "string" }
@@ -603,17 +655,15 @@ pricingModel EntityName {
 ### journey
 ```csl
 journey EntityName {
-  for: [segment refs]
+  targets: [segment refs]            // who this journey is for (≥1 recommended)
   offering: offering ref
-  phases: [
+  stages: [                          // use 'stages' (not 'phases')
     {
-      name: "string"
+      name: "string"                 // required per stage
+      goal: "string"
+      touchpoints: ["string list"]
       duration: number
       clientState: "string"
-      touchpoints: ["string list"]
-      keyQuestions: ["string list"]
-      content: ["string list"]
-      processes: [process refs]
       conversionBarriers: [{ barrier: "string", mitigation: "string" }]
       exitCriteria: "string"
       successCriteria: ["string list"]
@@ -641,20 +691,19 @@ Every reference field has a fixed set of **allowed source entity types** and a f
 | `operatesIn` | `offering` | `market` | `capability.operatesIn`, `process.operatesIn` |
 | `delivers` | `offering` | `outcome` | `process.delivers`, `capability.delivers` |
 | `requires` | `offering` | `capability` | **`process.requires` ← very common error** |
-| `supports` | `capability`, `process` | `offering` | `team.supports`, `step.supports` |
 | `ownedBy` | `capability` | `team` | `process.ownedBy`, `offering.ownedBy` |
 | `dependsOn` | `capability` → `capability`; `step` → `step` | capability / step | mixing source or target types |
-| `contributesTo` | `offering`, `capability` | `objective` | **`process.contributesTo` ← very common error** |
-| `measuredBy` | `offering`, `objective`, `outcome` | `metric` | `capability.measuredBy`, `process.measuredBy` |
-| `achievedThrough` | `outcome` | `offering` | `objective.achievedThrough`, `capability.achievedThrough` |
+| `achievedThrough` | `objective` | `offering` | **`outcome.achievedThrough` ← deprecated; `offering.achievedThrough` ← invalid** |
+| `measuredBy` | `offering`, `objective`, `outcome`, `process` | `metric` | `capability.measuredBy` |
 | `performedBy` | `process`, `step` | `team` / `role` | `capability.performedBy`, `offering.performedBy` |
 | `uses` | `process`, `step` | `system` | `capability.uses`, `offering.uses` |
 | `partOf` | `step` | `process` | `capability.partOf`, `offering.partOf` |
-| `owns` | `team` | `capability` | `offering.owns`, `process.owns` |
 
 ### Key Rules to Memorise
 
-- **`requires` is offering-only.** A `process` cannot declare `requires`. If you want to indicate that a process relies on a capability, model it by having the capability declare `supports: [OfferingName]` — the relationship is implicit through the offering.
-- **`contributesTo` is offering/capability-only.** A `process` or `step` cannot declare `contributesTo`. Strategic objectives are linked from the offering or capability level, not from individual operational processes.
-- **`supports` is valid on `process`.** `process.supports: [OfferingName]` is explicitly allowed and is the correct way to link a process to the offering it serves.
-- **`ownedBy` is capability-only.** Use `team.owns: [CapabilityName]` for the inverse direction if needed.
+- **`requires` is offering-only.** A `process` cannot declare `requires`. To express that a process depends on a capability, ensure the offering declares `offering.requires: [CapabilityName]`.
+- **`achievedThrough` is objective-only.** An `outcome` cannot declare `achievedThrough`. The canonical direction is `offering.delivers: [OutcomeName]`.
+- **`ownedBy` is capability-only.** Do not use `team.owns` — use `capability.ownedBy: TeamName`.
+- **`measuredBy` is valid on `process`.** `process.measuredBy: MetricName` is explicitly allowed and required.
+- **No reverse relationship fields on `system`.** Do not add `system.usedBy` or `system.supports`. Reference systems from `process.uses` and `step.uses` instead.
+- **`contributesTo` is removed.** Do not use `offering.contributesTo` or `process.contributesTo`. Link objectives via `objective.achievedThrough: [OfferingName]`.

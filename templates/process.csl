@@ -7,13 +7,13 @@
 // ============================================
 
 process ProcessName {
-  description: "What this process achieves and when it is run"
+  description: "What this process achieves and when it is run"  // required
 
-  performedBy: TeamName           // required: which team runs this process
+  performedBy: TeamName           // required: which team or role runs this process
+
+  measuredBy: MetricName          // required: metric that tracks this process
 
   uses: [SystemA, SystemB]        // tools / systems used in this process
-
-  supports: [OfferingName]        // offering(s) this process supports
 
   // Ordered list of steps (declare all step entities below)
   steps: [
@@ -54,6 +54,7 @@ step StepOne {
   description: "First step — typically intake, scheduling, or discovery"
   partOf: ProcessName              // required
   performedBy: RoleName            // required: who performs this step
+  order: 1                         // required: sequence position (1 = first)
   duration: 30                     // minutes
   estimatedEffort: 0.5             // hours
   delegatable: true                // can this be done by a junior or assistant?
@@ -64,6 +65,7 @@ step StepTwo {
   description: "Second step — analysis or preparation"
   partOf: ProcessName
   performedBy: SeniorRole
+  order: 2                         // required
   duration: 120
   estimatedEffort: 2
   dependsOn: [StepOne]             // must complete StepOne first
@@ -83,6 +85,7 @@ step StepThree {
   description: "Core delivery step — the main value-creating activity"
   partOf: ProcessName
   performedBy: SeniorRole
+  order: 3                         // required
   duration: 240
   estimatedEffort: 4
   dependsOn: [StepTwo]
@@ -103,6 +106,7 @@ step StepFour {
   description: "Review and quality check"
   partOf: ProcessName
   performedBy: QualityRole
+  order: 4                         // required
   duration: 60
   estimatedEffort: 1
   dependsOn: [StepThree]
@@ -114,6 +118,7 @@ step StepFive {
   description: "Final handoff and closure"
   partOf: ProcessName
   performedBy: RoleName
+  order: 5                         // required
   duration: 30
   estimatedEffort: 0.5
   dependsOn: [StepFour]

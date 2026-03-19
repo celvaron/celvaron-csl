@@ -6,19 +6,14 @@
 // ============================================
 
 team TeamName {
-  description: "What this team does and what they are accountable for"
+  description: "What this team does and what they are accountable for"  // required
+
+  // Headcount (required) — use plain number or nested form:
+  size: 3               // required: plain number, OR: size: { current: 3, target: 5 }
 
   // Roles that exist within this team
   roles: [RoleA, RoleB]
-
-  // Capabilities this team owns (links to capability entities)
-  owns: [CapabilityA, CapabilityB]
-
-  // Headcount
-  size: {
-    current: 3          // current number of people
-    target: 5           // planned headcount
-  }
+  // Note: capabilities owned by this team are declared on each capability via capability.ownedBy
 
   // Capacity
   capacity: {

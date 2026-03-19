@@ -34,7 +34,10 @@ The mapping process follows this order:
 | Input Data Field | CSL Field | Type | Required |
 |---|---|---|---|
 | Company / organization name | `name` | string | ✅ |
-| Short description of what the company does | `description` | string | — |
+| Short description of what the company does | `description` | string | ✅ |
+| Industry or sector (e.g. "Professional Services", "SaaS", "FinTech") | `industry` | string | ✅ |
+| Company size tier | `size` | `startup`/`scale-up`/`mid-market`/`enterprise` | ✅ |
+| Current growth phase | `stage` | `idea`/`pre-revenue`/`growth`/`established`/`mature` | ✅ |
 | City, country of headquarters | `headquarters` | string | — |
 | Year the business was started | `founded` | number | — |
 | List of geographic or industry markets | `markets` | [market references] | — |
@@ -67,21 +70,19 @@ An offering is any service, product, or program the company sells or delivers.
 | Input Data Field | CSL Field | Type | Required |
 |---|---|---|---|
 | Service / product name | entity name (PascalCase) | identifier | ✅ |
-| Description of what it does | `description` | string | — |
+| Description of what it does | `description` | string | ✅ |
 | Customer groups it serves | `targets` | [segment references] | ✅ |
 | Geographic / industry markets | `operatesIn` | [market references] | — |
 | Skills / abilities needed to deliver | `requires` | [capability references] | ✅ |
 | Changes or results it creates for clients | `delivers` | [outcome references] | ✅ |
 | KPIs used to measure success | `measuredBy` | [metric references] | — |
-| Strategic goals it contributes to | `contributesTo` | [objective references] | — |
-| Average contract / project value | `economics.avgDealSize` | number | — |
+| Average contract / project value | `economics.avgDealSize` | number | ✅ |
 | Average hours to deliver | `economics.avgDeliveryHours` | number | — |
-| Gross margin percentage | `economics.targetMargin` | number (0–1) | — |
+| Gross margin percentage | `economics.targetMargin` | number (0–1) | ✅ |
 | Revenue per client over their lifetime | `economics.clientLifetimeValue` | number | — |
 | % of prospects who convert to clients | `performance.conversionRate` | number (0–1) | — |
 | Average days from first contact to signed deal | `performance.avgSalesCycle` | number | — |
 | % of clients who renew | `performance.clientRetention` | number (0–1) | — |
-| Pricing tiers / packages | `packages` | [package references] | — |
 
 **Naming rule:** Convert to PascalCase. "Service Productization" → `ServiceProductization`
 
@@ -94,7 +95,9 @@ A segment is a distinct group of potential customers.
 | Input Data Field | CSL Field | Type | Required |
 |---|---|---|---|
 | Segment / customer group name | entity name | identifier | ✅ |
-| Description of the group | `description` | string | — |
+| Description of the group | `description` | string | ✅ |
+| Number of companies or people in this segment | `size` | number | ✅ |
+| Market this segment operates within | `operatesIn` | market reference | ✅ |
 | Industry / sector | `characteristics.industry` | string | — |
 | Annual revenue range | `characteristics.revenueRange` | [min, max] | — |
 | Team size range | `characteristics.teamSize` | [min, max] | — |
@@ -138,8 +141,7 @@ An outcome is the transformation or value delivered to a client.
 | Type of improvement | `type` | outcome type enum | — |
 | Current state of the metric | `baseline.metric`, `baseline.value` | string, number | — |
 | Target state of the metric | `target.metric`, `target.value`, `target.timeframe` | string, number, string | — |
-| Offerings that create this outcome | `achievedThrough` | [offering references] | — |
-| Metrics that track this outcome | `measuredBy` | [metric references] | — |
+| Metrics that track this outcome | `measuredBy` | [metric references] | ✅ |
 | Annual revenue impact | `economicValue.annualRevenue` | number | — |
 | Annual cost reduction | `economicValue.costReduction` | number | — |
 | Hours saved per year | `economicValue.timeSaving` | number | — |
@@ -150,6 +152,8 @@ An outcome is the transformation or value delivered to a client.
 
 **Outcome type values:**  
 `revenue_increase` | `cost_reduction` | `time_saving` | `risk_mitigation` | `capacity_expansion` | `quality_improvement` | `customer_satisfaction`
+
+Short aliases (also accepted): `financial` | `efficiency` | `growth` | `risk`
 
 ---
 
@@ -162,10 +166,9 @@ A capability is something the organization must be able to do.
 | Capability / skill name | entity name | identifier | ✅ |
 | Description | `description` | string | — |
 | Team that owns this capability | `ownedBy` | team reference | ✅ |
-| Offerings this capability enables | `supports` | [offering references] | — |
 | Other capabilities this depends on | `dependsOn` | [capability references] | — |
-| Current maturity level | `maturity.current` | maturity enum | — |
-| Target maturity level | `maturity.target` | maturity enum | — |
+| Current maturity level | `maturity.current` | `basic`/`intermediate`/`advanced`/`expert` | ✅ |
+| Target maturity level | `maturity.target` | `basic`/`intermediate`/`advanced`/`expert` | — |
 | Tools used to perform this | `resources.toolsUsed` | [system references] | — |
 | Number of people needed | `resources.peopleRequired` | number | — |
 | Average hours to execute once | `resources.avgTimePerExecution` | number | — |
@@ -183,10 +186,10 @@ A process is a repeatable operational workflow.
 | Input Data Field | CSL Field | Type | Required |
 |---|---|---|---|
 | Process name | entity name | identifier | ✅ |
-| Description | `description` | string | — |
-| Team that runs this process | `performedBy` | team reference | ✅ |
+| Description | `description` | string | ✅ |
+| Team or role that runs this process | `performedBy` | team or role reference | ✅ |
+| Metric that tracks this process | `measuredBy` | metric reference | ✅ |
 | Tools / systems used | `uses` | [system references] | — |
-| Offerings this process supports | `supports` | [offering references] | — |
 | Ordered list of steps | `steps` | [step references] | ✅ (≥1) |
 | Average days to complete | `metrics.avgDuration` | number | — |
 | % of runs that succeed | `metrics.successRate` | number (0–1) | — |
@@ -196,8 +199,8 @@ A process is a repeatable operational workflow.
 | Manual steps | `automation.manual` | [string list] | — |
 
 > ❌ **Not valid on `process`:** `requires`, `contributesTo`
-> - `process.requires` is **E215** — only `offering` may declare `requires`. Capabilities needed by a process are modelled by the capability declaring `supports: [OfferingName]`.
-> - `process.contributesTo` is **E216** — only `offering` and `capability` may link to objectives. If this process serves a strategic goal, place `contributesTo` on the offering or capability it supports.
+> - `process.requires` is **E215** — only `offering` may declare `requires`. To express that a process depends on a capability, ensure the offering declares `offering.requires: [CapabilityName]`. Do not use the deprecated `capability.supports`.
+> - `process.contributesTo` is **E216** — process entities may not link to objectives. Strategic goals are connected via `objective.achievedThrough: [OfferingName]`. Place this on the `objective` entity, not on the process.
 
 ---
 
@@ -208,9 +211,10 @@ A step is a single atomic activity inside a process.
 | Input Data Field | CSL Field | Type | Required |
 |---|---|---|---|
 | Step name | entity name | identifier | ✅ |
-| Description | `description` | string | — |
+| Description | `description` | string | ✅ |
 | Process this step belongs to | `partOf` | process reference | ✅ |
 | Role or team who performs this | `performedBy` | team/role reference | ✅ |
+| Sequence position (1 = first) | `order` | number | ✅ |
 | Duration in minutes | `duration` | number | — |
 | Estimated hours of effort | `estimatedEffort` | number | — |
 | Steps that must complete first | `dependsOn` | [step references] | — |
@@ -223,8 +227,8 @@ A step is a single atomic activity inside a process.
 | Automation potential | `automationPotential` | `low`/`medium`/`high` | — |
 
 > ❌ **Not valid on `step`:** `requires`, `contributesTo`
-> - A step inherits the offering-level `requires` through the process and capability chain. Do not add `requires` directly to a step.
-> - `contributesTo` applies at offering/capability level only, not at the individual step level.
+> - A step inherits the capability requirements through the offering chain. Do not add `requires` directly to a step.
+> - Objective links go on `objective.achievedThrough`, not on steps.
 
 ---
 
@@ -262,15 +266,15 @@ A team is an organizational unit that owns work.
 | Input Data Field | CSL Field | Type | Required |
 |---|---|---|---|
 | Team name | entity name | identifier | ✅ |
-| Description | `description` | string | — |
+| Description | `description` | string | ✅ |
+| Headcount | `size` | number OR `{ current: number, target: number }` | ✅ |
 | Roles in this team | `roles` | [role references] | — |
-| Capabilities this team owns | `owns` | [capability references] | — |
-| Current headcount | `size.current` | number | — |
-| Target headcount | `size.target` | number | — |
 | Billable hours per month per person | `capacity.billableHours` | number | — |
 | Utilization rate | `capacity.utilization` | number (0–1) | — |
 | Lead role | `structure.leadRole` | role reference | — |
 | Reports to | `structure.reportingTo` | string | — |
+
+> **Capabilities** are linked from the capability entity via `capability.ownedBy: TeamName`. Do not use `team.owns` — it is deprecated in favour of `capability.ownedBy`.
 
 ---
 
@@ -296,15 +300,15 @@ A system is a technology platform or tool.
 | Input Data Field | CSL Field | Type | Required |
 |---|---|---|---|
 | System / tool name | entity name | identifier | ✅ |
-| Description | `description` | string | — |
-| Type of system | `type` | `saas`/`internal`/`infrastructure`/`custom` | — |
+| Description | `description` | string | ✅ |
+| Type of system | `type` | `saas`/`internal`/`infrastructure`/`custom`/`external` | ✅ |
 | Vendor name | `vendor` | string | — |
-| Teams that use this | `usedBy` | [team references] | — |
-| Processes this supports | `supports` | [process references] | — |
 | Monthly cost | `cost.monthly` | number | — |
 | Annual cost | `cost.annual` | number | — |
 | Connected systems | `integration.connectedTo` | [system references] | — |
 | API available? | `integration.apiAvailable` | boolean | — |
+
+> Systems are referenced from `process.uses` and `step.uses` — do not add `usedBy` or `supports` on system entities. Those fields are deprecated.
 
 ---
 
@@ -315,14 +319,15 @@ A strategic company goal.
 | Input Data Field | CSL Field | Type | Required |
 |---|---|---|---|
 | Objective name | entity name | identifier | ✅ |
-| Description | `description` | string | — |
+| Description | `description` | string | ✅ |
+| Time period covered (e.g. "FY2025", "Q1–Q4 2025") | `timeframe` | string | ✅ |
 | Type of objective | `type` | `financial`/`operational`/`strategic`/`customer` | — |
-| Metric being targeted | `target.metric` | metric reference | — |
+| Metric being targeted | `target.metric` | string | — |
 | Current value | `target.current` | number | — |
 | Target value | `target.target` | number | — |
 | Deadline | `target.deadline` | ISO date string | — |
-| Metrics that track this | `measuredBy` | [metric references] | — |
-| Offerings that contribute | `contributedBy` | [offering refs with impact] | — |
+| Metrics that track this | `measuredBy` | [metric references] | ✅ |
+| Offerings that achieve this objective | `achievedThrough` | [offering references] | ✅ |
 
 ---
 
@@ -333,15 +338,69 @@ A performance measurement.
 | Input Data Field | CSL Field | Type | Required |
 |---|---|---|---|
 | Metric name | entity name | identifier | ✅ |
-| Description | `description` | string | — |
+| Description | `description` | string | ✅ |
+| Unit of measurement | `unit` | string | ✅ |
+| Target value | `target` | number | ✅ |
+| Baseline / current value | `baseline` | number | ✅ |
+| Measurement frequency | `frequency` | string | ✅ |
 | Type of metric | `type` | `financial`/`operational`/`customer`/`quality`/`growth` | — |
-| Unit of measurement | `unit` | string | — |
 | Calculation formula | `calculation` | string | — |
-| Current value | `targets.current` | number | — |
-| Period targets | `targets.q1`, `targets.q4`, etc. | number | — |
-| Measurement frequency | `measurement.frequency` | string | — |
-| Data source | `measurement.source` | string | — |
-| Metric owner | `measurement.owner` | string | — |
+| Current value (nested alternative) | `targets.current` | number | — |
+| Period targets (nested alternative) | `targets.q1`, `targets.q4`, etc. | number | — |
+| Frequency (nested alternative) | `measurement.frequency` | string | — |
+| Data source (nested alternative) | `measurement.source` | string | — |
+| Metric owner (nested alternative) | `measurement.owner` | string | — |
+
+> **Canonical form:** Use flat `target`, `baseline`, `frequency` fields. The nested `targets{}`/`measurement{}` form is also valid for richer data but not required.
+
+---
+
+### 2.15 Journey
+
+A journey maps the client's experience through the buying and delivery lifecycle.
+
+| Input Data Field | CSL Field | Type | Required |
+|---|---|---|---|
+| Journey name | entity name | identifier | ✅ |
+| Target segments | `targets` | [segment references] | — (≥1 recommended) |
+| Related offering | `offering` | offering reference | — |
+| Journey stages | `stages` | list of stage objects | ✅ (≥1) |
+| Stage name | `stages[].name` | string | ✅ |
+| Stage goal | `stages[].goal` | string | — |
+| Stage touchpoints | `stages[].touchpoints` | [string list] | — |
+| Stage duration | `stages[].duration` | number (days) | — |
+| Client state during stage | `stages[].clientState` | string | — |
+| Conversion barriers | `stages[].conversionBarriers` | [{ barrier, mitigation }] | — |
+| Exit criteria | `stages[].exitCriteria` | string | — |
+| Success criteria | `stages[].successCriteria` | [string list] | — |
+| Awareness to eval conversion | `metrics.awarenessToEval` | number (0–1) | — |
+| Eval to close conversion | `metrics.evalToClose` | number (0–1) | — |
+| Overall conversion rate | `metrics.overallConversion` | number (0–1) | — |
+| Average days to close | `metrics.avgTimeToClose` | number | — |
+
+> **Note:** Use `stages` (not `phases`) as the field name for the list of journey steps.
+
+---
+
+### 2.16 PricingModel
+
+A pricing model describes the commercial logic behind how offerings are priced.
+
+| Input Data Field | CSL Field | Type | Required |
+|---|---|---|---|
+| PricingModel name | entity name | identifier | ✅ |
+| Pricing type | `type` | pricing model type enum | ✅ |
+| Description | `description` | string | ✅ |
+| Calculation basis | `calculation.basis` | string | — |
+| Calculation methodology | `calculation.methodology` | string | — |
+| Value capture ratio | `calculation.valueCapture` | number (0–1) | — |
+| Base price | `structure.basePrice` | number | — |
+| Add-ons | `structure.addOns` | [{ name: string, price: number }] | — |
+| Payment terms | `terms.payment` | string | — |
+| Refund policy | `terms.refundPolicy` | string | — |
+| Price adjustment policy | `terms.priceAdjustment` | string | — |
+
+**Type values:** `fixed_project` | `monthly_retainer` | `value_based` | `tiered_subscription` | `usage_based` | `hybrid`
 
 ---
 
@@ -367,11 +426,15 @@ A performance measurement.
 |---|---|---|
 | Proficiency level of this role in this capability | `level` | `basic`/`intermediate`/`advanced`/`expert` |
 
-### `contributedBy` on `objective`
+### `achievedThrough` on `objective`
 
-| Input Data | Attribute | Type |
-|---|---|---|
-| % of objective achieved by this offering | `impact` | number (0–1) |
+References the offering entities that collectively achieve this objective. No inline attributes are needed — add offerings to the list directly.
+
+```csl
+objective GrowRevenue {
+  achievedThrough: [ServiceProductization, AdvisoryRetainer]
+}
+```
 
 ---
 

@@ -96,13 +96,12 @@ package BasicPackage {
 | `requires` | offering → capability |
 | `ownedBy` | capability → team |
 | `dependsOn` | capability → capability, step → step |
-| `supports` | capability → offering |
 | `performedBy` | process/step → team/role |
 | `uses` | process/step → system |
 | `hasStep` | process → step |
 | `partOf` | step → process |
-| `measuredBy` | offering/objective → metric |
-| `contributesTo` | offering/capability → objective |
+| `measuredBy` | offering/objective/process → metric |
+| `achievedThrough` | objective → offering |
 
 ---
 
@@ -227,9 +226,12 @@ step StepC {
 ### Capability Chain
 
 ```csl
+offering PremiumOffering {
+  requires: [Advanced]
+}
+
 capability Advanced {
   ownedBy: ExpertTeam
-  supports: [PremiumOffering]
   dependsOn: [Mid1, Mid2]
   maturity: { current: "advanced", target: "expert" }
   criticality: "high"
@@ -238,14 +240,12 @@ capability Advanced {
 
 capability Mid1 {
   ownedBy: SpecialistTeam
-  supports: [StandardOffering]
   dependsOn: [Foundation1]
   maturity: { current: "intermediate", target: "advanced" }
 }
 
 capability Foundation1 {
   ownedBy: CoreTeam
-  supports: [BasicOffering]
   maturity: { current: "advanced", target: "advanced" }
 }
 ```

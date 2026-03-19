@@ -111,12 +111,12 @@ These are hard errors. Every reference field is only valid on specific source en
 
 | Rule | Error Code | Message |
 |---|---|---|
-| `requires` used on any entity other than `offering` | E215 | `{type}:{name} uses 'requires' but only offering may declare requires. Did you mean capability.supports: [offering]?` |
-| `contributesTo` used on any entity other than `offering` or `capability` | E216 | `{type}:{name} uses 'contributesTo' but only offering and capability may link to objectives. Move contributesTo to the relevant offering or capability.` |
+| `requires` used on any entity other than `offering` | E215 | `{type}:{name} uses 'requires' but only offering may declare requires. Use offering.requires: [CapabilityName] instead.` |
+| `contributesTo` used on any entity | E216 | `{type}:{name} uses 'contributesTo' which is deprecated. Link objectives via objective.achievedThrough: [OfferingName] instead.` |
 | `targets` used on any entity other than `offering` | E217 | `{type}:{name} uses 'targets' but only offering may target segments` |
 | `delivers` used on any entity other than `offering` | E218 | `{type}:{name} uses 'delivers' but only offering may deliver outcomes` |
-| `ownedBy` used on any entity other than `capability` | E219 | `{type}:{name} uses 'ownedBy' but only capability may declare ownedBy. Use team.owns for the inverse.` |
-| `achievedThrough` used on any entity other than `outcome` | E220 | `{type}:{name} uses 'achievedThrough' but only outcome may declare achievedThrough` |
+| `ownedBy` used on any entity other than `capability` | E219 | `{type}:{name} uses 'ownedBy' but only capability may declare ownedBy. Do not use team.owns — use capability.ownedBy: TeamName.` |
+| `achievedThrough` used on any entity other than `objective` | E220 | `{type}:{name} uses 'achievedThrough' but only objective may declare achievedThrough. Use offering.delivers: [OutcomeName] to link an outcome from an offering.` |
 | `partOf` used on any entity other than `step` | E221 | `{type}:{name} uses 'partOf' but only step may declare partOf` |
 
 ### 4.4 Handling Type Restriction Errors
@@ -144,8 +144,16 @@ These are not blocking but indicate potential issues with the business model.
 | Package has no target segments | W008 | `{package} has no targets field. Who is this package designed for?` |
 | Journey phase has no conversion tracking | W009 | `Journey {journey} is missing conversion metrics` |
 | Orphan entity (no edges) | W010 | `{type}:{name} is not referenced by any other entity. It may be disconnected from the model` |
-| `process` uses `requires` field | W011 | `{process} declares requires, which is only valid on offering. To express that a process depends on a capability, ensure that capability declares supports: [OfferingName]` |
-| `process` or `step` uses `contributesTo` field | W012 | `{type}:{name} declares contributesTo, which is only valid on offering and capability. Move contributesTo to the offering or capability that owns this objective link.` |
+| `process` uses `requires` field | W011 | `{process} declares requires, which is only valid on offering. Use offering.requires: [CapabilityName] to express the dependency.` |
+| `process` or `step` uses `contributesTo` field | W012 | `{type}:{name} declares contributesTo, which is deprecated. Link objectives via objective.achievedThrough: [OfferingName].` |
+| Deprecated `capability.supports` field used | W013 | `{capability} declares supports: [offering]. This field is deprecated — declare the relationship on the offering via offering.requires: [CapabilityName] instead.` |
+| Deprecated `team.owns` field used | W014 | `{team} declares owns: [capability]. This field is deprecated — use capability.ownedBy: {teamName} on each capability instead.` |
+| Deprecated `outcome.achievedThrough` field used | W015 | `{outcome} declares achievedThrough: [offering]. This field is deprecated — declare the relationship on the offering via offering.delivers: [OutcomeName] instead.` |
+| Deprecated `offering.contributesTo` field used | W016 | `{offering} declares contributesTo: [objective]. This field is deprecated — declare the relationship on the objective via objective.achievedThrough: [OfferingName] instead.` |
+| Deprecated `process.supports` field used | W017 | `{process} declares supports: [offering]. This field is deprecated and should be removed entirely.` |
+| Deprecated `system.supports` or `system.usedBy` field used | W018 | `{system} declares {field}. These fields are deprecated — reference systems from process.uses or step.uses instead.` |
+| Deprecated `objective.contributedBy` field used | W019 | `{objective} declares contributedBy: [offering]. This field is deprecated — use objective.achievedThrough: [OfferingName] instead.` |
+| Deprecated `offering.packages` field used | W020 | `{offering} declares packages: [package]. This field is deprecated — use package.offering: {offeringName} on each package instead.` |
 
 ---
 

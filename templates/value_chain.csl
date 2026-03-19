@@ -12,6 +12,33 @@
 // ============================================
 
 // ============================================
+// COMPANY
+// ============================================
+
+company CompanyName {
+  name: "Full Company Name"             // required
+  description: "One sentence describing what the company does and who it serves"  // required
+  industry: "Professional Services"     // required
+  size: "scale-up"                      // required: startup | scale-up | mid-market | enterprise
+  stage: "growth"                       // required: idea | pre-revenue | growth | established | mature
+  headquarters: "City, Country"
+  markets: [PrimaryMarket]
+  offerings: [CoreOffering]
+  objectives: [GrowRevenue]
+  voice: {
+    tone: "Clear, outcome-driven, professional"
+    formality: "semi-formal"
+    perspective: "we"
+    language: "en"
+    dos: ["Lead with outcomes", "Use concrete numbers"]
+    donts: ["No buzzwords", "No passive voice"]
+    examplePhrases: ["We help X achieve Y by doing Z"]
+  }
+  meta: { confidence: "high", source: "client_interview" }
+  status: "active"
+}
+
+// ============================================
 // MARKET
 // ============================================
 
@@ -37,7 +64,9 @@ market PrimaryMarket {
 // ============================================
 
 segment PrimarySegment {
-  description: "Primary customer group this company serves"
+  description: "Primary customer group this company serves"  // required
+  size: 5000                          // required: total number of companies/people in this segment
+  operatesIn: PrimaryMarket           // required: market this segment belongs to
   characteristics: {
     industry: "Professional Services"
     revenueRange: [500000, 5000000]
@@ -67,8 +96,9 @@ segment PrimarySegment {
 // ============================================
 
 outcome PrimaryOutcome {
-  description: "The primary transformation this company delivers to clients"
+  description: "The primary transformation this company delivers to clients"  // required
   type: "revenue_increase"        // revenue_increase | cost_reduction | time_saving | risk_mitigation | capacity_expansion | quality_improvement | customer_satisfaction
+  measuredBy: [MRR]               // required (≥1)
   baseline: {
     metric: "MRR"
     value: 20000
@@ -80,8 +110,6 @@ outcome PrimaryOutcome {
     unit: "EUR"
     timeframe: "6 months"
   }
-  achievedThrough: [CoreOffering]
-  measuredBy: [MRR]
   economicValue: {
     annualRevenue: 240000
     costReduction: 0
@@ -100,7 +128,7 @@ outcome PrimaryOutcome {
 // ============================================
 
 offering CoreOffering {
-  description: "Core service this company delivers"
+  description: "Core service this company delivers"  // required
   targets: [PrimarySegment] with {
     PrimarySegment: { priority: primary, fitScore: 0.88 }
   }
@@ -111,11 +139,10 @@ offering CoreOffering {
   ]
   delivers: [PrimaryOutcome]
   measuredBy: [MRR, ConversionRate]
-  contributesTo: [GrowRevenue]
   economics: {
-    avgDealSize: 15000
+    avgDealSize: 15000      // required
     avgDeliveryHours: 60
-    targetMargin: 0.65
+    targetMargin: 0.65      // required
     clientLifetimeValue: 75000
   }
   performance: {
@@ -124,7 +151,6 @@ offering CoreOffering {
     clientRetention: 0.80
     referralRate: 0.30
   }
-  packages: [EntryPackage, StandardPackage]
   meta: { confidence: "medium", source: "client_interview" }
   status: "active"
 }
@@ -174,10 +200,9 @@ package StandardPackage {
 // ============================================
 
 capability CoreCapability {
-  description: "Core skill or ability that enables delivery of CoreOffering"
-  ownedBy: CoreTeam
-  supports: [CoreOffering]
-  maturity: { current: "advanced", target: "expert" }
+  description: "Core skill or ability that enables delivery of CoreOffering"  // required
+  ownedBy: CoreTeam               // required
+  maturity: { current: "advanced", target: "expert" }  // current required
   resources: {
     toolsUsed: [PrimarySystem]
     peopleRequired: 2
@@ -189,10 +214,9 @@ capability CoreCapability {
 }
 
 capability SupportCapability {
-  description: "Supporting skill used in delivery"
-  ownedBy: CoreTeam
-  supports: [CoreOffering]
-  maturity: { current: "intermediate", target: "advanced" }
+  description: "Supporting skill used in delivery"  // required
+  ownedBy: CoreTeam               // required
+  maturity: { current: "intermediate", target: "advanced" }  // current required
   criticality: "medium"
   meta: { confidence: "medium", source: "assumption" }
 }
@@ -202,10 +226,9 @@ capability SupportCapability {
 // ============================================
 
 team CoreTeam {
-  description: "Team responsible for delivering CoreOffering"
+  description: "Team responsible for delivering CoreOffering"  // required
+  size: 3                         // required (plain number or { current: N, target: N })
   roles: [SeniorConsultant, Analyst]
-  owns: [CoreCapability, SupportCapability]
-  size: { current: 3, target: 5 }
   capacity: { billableHours: 120, utilization: 0.75 }
   structure: { leadRole: SeniorConsultant, reportingTo: "CEO" }
   meta: { confidence: "high", source: "client_interview" }
@@ -242,10 +265,10 @@ role Analyst {
 // ============================================
 
 process CoreDeliveryProcess {
-  description: "Primary delivery workflow for CoreOffering"
-  performedBy: CoreTeam
+  description: "Primary delivery workflow for CoreOffering"  // required
+  performedBy: CoreTeam           // required
+  measuredBy: AvgDeliveryDays     // required
   uses: [PrimarySystem]
-  supports: [CoreOffering]
   steps: [Intake, Analysis, Delivery, Review]
   metrics: { avgDuration: 14, successRate: 0.92 }
   meta: { confidence: "high", source: "workshop" }
@@ -255,6 +278,7 @@ step Intake {
   description: "Capture client information and schedule kickoff"
   partOf: CoreDeliveryProcess
   performedBy: Analyst
+  order: 1                         // required
   duration: 60
   estimatedEffort: 1
   delegatable: true
@@ -265,6 +289,7 @@ step Analysis {
   description: "Analyze client situation and prepare recommendations"
   partOf: CoreDeliveryProcess
   performedBy: SeniorConsultant
+  order: 2                         // required
   duration: 240
   estimatedEffort: 4
   dependsOn: [Intake]
@@ -276,6 +301,7 @@ step Delivery {
   description: "Deliver solution to client"
   partOf: CoreDeliveryProcess
   performedBy: SeniorConsultant
+  order: 3                         // required
   duration: 120
   estimatedEffort: 3
   dependsOn: [Analysis]
@@ -288,6 +314,7 @@ step Review {
   description: "Collect feedback and close engagement"
   partOf: CoreDeliveryProcess
   performedBy: Analyst
+  order: 4                         // required
   duration: 60
   estimatedEffort: 1
   dependsOn: [Delivery]
@@ -300,12 +327,11 @@ step Review {
 // ============================================
 
 system PrimarySystem {
-  description: "Primary tool used in delivery"
-  type: "saas"
+  description: "Primary tool used in delivery"  // required
+  type: "saas"                    // required: saas | internal | infrastructure | custom | external
   vendor: "VendorName"
-  usedBy: [CoreTeam]
-  supports: [CoreDeliveryProcess]
   cost: { monthly: 200, annual: 2400 }
+  integration: { connectedTo: [], apiAvailable: true }
 }
 
 // ============================================
@@ -313,7 +339,8 @@ system PrimarySystem {
 // ============================================
 
 objective GrowRevenue {
-  description: "Grow annual recurring revenue"
+  description: "Grow annual recurring revenue"   // required
+  timeframe: "FY2026"                             // required
   type: "financial"
   target: {
     metric: "ARR"
@@ -321,33 +348,44 @@ objective GrowRevenue {
     target: 1000000
     deadline: "2026-12-31"
   }
-  measuredBy: [ARR, MRR]
-  contributedBy: [
-    CoreOffering with { impact: 1.0 }
-  ]
+  measuredBy: [ARR, MRR]          // required (≥1)
+  achievedThrough: [CoreOffering] // required (≥1) — replaces deprecated contributedBy
   meta: { confidence: "high", source: "client_interview" }
 }
 
 metric ARR {
-  description: "Annual Recurring Revenue"
+  description: "Annual Recurring Revenue"  // required
+  unit: "EUR"                              // required
+  target: 1000000                          // required
+  baseline: 200000                         // required
+  frequency: "monthly"                     // required
   type: "financial"
-  unit: "EUR"
   calculation: "SUM(mrr * 12)"
-  targets: { current: 200000, q4: 1000000 }
-  measurement: { frequency: "monthly", source: "CRM", owner: "CEO" }
 }
 
 metric MRR {
-  description: "Monthly Recurring Revenue"
+  description: "Monthly Recurring Revenue"  // required
+  unit: "EUR"                               // required
+  target: 83333                             // required
+  baseline: 16667                           // required
+  frequency: "monthly"                      // required
   type: "financial"
-  unit: "EUR"
-  measurement: { frequency: "monthly", source: "CRM" }
 }
 
 metric ConversionRate {
-  description: "% of qualified prospects who become clients"
+  description: "% of qualified prospects who become clients"  // required
+  unit: "percentage"                        // required
+  target: 0.45                              // required
+  baseline: 0.30                            // required
+  frequency: "monthly"                      // required
   type: "operational"
-  unit: "percentage"
-  targets: { current: 0.30, target: 0.45 }
-  measurement: { frequency: "monthly", source: "CRM" }
+}
+
+metric AvgDeliveryDays {
+  description: "Average days from kickoff to final delivery"  // required
+  unit: "days"                              // required
+  target: 14                                // required
+  baseline: 21                              // required
+  frequency: "per-engagement"               // required
+  type: "operational"
 }

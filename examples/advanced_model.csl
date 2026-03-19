@@ -138,26 +138,35 @@ objective ReduceChurnBelow5Percent {
 
 offering ProjectIntelligencePlatform {
   description: "Core project management, time-tracking, and profitability analytics platform"
-  type: "saas"
   targets: MidMarketConsultingFirms
   requires: [TimeAndExpenseCapture, ProjectProfitabilityEngine, InvoicingAndBilling]
   delivers: [ImproveProjectProfitability, ReduceRevenueLeakage]
+  economics: {
+    avgDealSize: 15000
+    targetMargin: 0.72
+  }
 }
 
 offering ClientPortal {
   description: "Self-service portal for end clients to view project status, approve deliverables, and pay invoices"
-  type: "saas"
   targets: [MidMarketConsultingFirms, LegalAndAccountingFirms]
   requires: [ClientCollaborationHub, InvoicingAndBilling]
   delivers: [ShortenInvoiceCycle, IncreaseClientRetention]
+  economics: {
+    avgDealSize: 8000
+    targetMargin: 0.68
+  }
 }
 
 offering FreelancerEdition {
   description: "Lightweight version optimised for managing distributed freelancer networks"
-  type: "saas"
   targets: FreelancerNetworks
   requires: [TimeAndExpenseCapture, IntegrationLayer]
   delivers: [ReduceRevenueLeakage, ShortenInvoiceCycle]
+  economics: {
+    avgDealSize: 5000
+    targetMargin: 0.65
+  }
 }
 
 # ── Packages ───────────────────────────────────────────────────────────────────
@@ -166,6 +175,7 @@ package Essentials {
   tier: "entry"
   position: 1
   offering: ProjectIntelligencePlatform
+  description: "Entry-level plan for small consulting teams with up to 10 users"
   pricing: {
     model: "tiered_subscription"
     basePrice: 49
@@ -186,6 +196,7 @@ package Professional {
   tier: "standard"
   position: 2
   offering: ProjectIntelligencePlatform
+  description: "For growing firms requiring profitability analytics and client-facing features"
   pricing: {
     model: "tiered_subscription"
     basePrice: 129
@@ -207,6 +218,7 @@ package Enterprise {
   tier: "enterprise"
   position: 3
   offering: ProjectIntelligencePlatform
+  description: "For large firms needing unlimited users, SSO, a dedicated CSM, and custom integrations"
   // Custom pricing — contact sales. basePrice is a placeholder minimum.
   pricing: {
     model: "usage_based"
@@ -229,6 +241,7 @@ package FreelancerStarter {
   tier: "entry"
   position: 1
   offering: FreelancerEdition
+  description: "For platforms managing up to 25 independent contractors"
   pricing: {
     model: "tiered_subscription"
     basePrice: 79
@@ -246,13 +259,13 @@ package FreelancerStarter {
 # ── Pricing Models ──────────────────────────────────────────────────────────────
 
 pricingModel PerSeatSubscription {
-  type: "per-seat"
+  type: "tiered_subscription"
   description: "Monthly or annual subscription priced per active user seat"
   discountPolicy: "Annual billing gives 20% discount vs. monthly"
 }
 
 pricingModel UsageBased {
-  type: "usage-based"
+  type: "usage_based"
   description: "Billing tied to number of active projects and API calls for Enterprise tier"
 }
 
@@ -264,7 +277,6 @@ capability TimeAndExpenseCapture {
   maturity: {
     current: "expert"
   }
-  supports: [ProjectIntelligencePlatform, FreelancerEdition]
 }
 
 capability ProjectProfitabilityEngine {
@@ -273,7 +285,6 @@ capability ProjectProfitabilityEngine {
   maturity: {
     current: "advanced"
   }
-  supports: ProjectIntelligencePlatform
   dependsOn: TimeAndExpenseCapture
 }
 
@@ -283,7 +294,6 @@ capability InvoicingAndBilling {
   maturity: {
     current: "advanced"
   }
-  supports: [ProjectIntelligencePlatform, ClientPortal]
   dependsOn: TimeAndExpenseCapture
 }
 
@@ -293,7 +303,6 @@ capability ClientCollaborationHub {
   maturity: {
     current: "intermediate"
   }
-  supports: ClientPortal
   dependsOn: InvoicingAndBilling
 }
 
@@ -303,7 +312,6 @@ capability IntegrationLayer {
   maturity: {
     current: "advanced"
   }
-  supports: [ProjectIntelligencePlatform, FreelancerEdition]
 }
 
 capability AnalyticsAndReporting {
@@ -312,7 +320,6 @@ capability AnalyticsAndReporting {
   maturity: {
     current: "intermediate"
   }
-  supports: ProjectIntelligencePlatform
   dependsOn: ProjectProfitabilityEngine
 }
 
@@ -321,13 +328,11 @@ capability AnalyticsAndReporting {
 system CorePlatformAPI {
   description: "RESTful API serving all product surfaces: web app, mobile, client portal, and third-party integrations"
   type: "internal"
-  uses: [TimeAndExpenseCapture, ProjectProfitabilityEngine, InvoicingAndBilling]
 }
 
 system DataWarehouse {
   description: "Redshift-based analytical data store for reporting and ML feature pipelines"
   type: "internal"
-  uses: AnalyticsAndReporting
 }
 
 system AuthService {
@@ -338,7 +343,6 @@ system AuthService {
 system StripePayments {
   description: "Third-party payment processing for invoice collection"
   type: "external"
-  uses: InvoicingAndBilling
 }
 
 # ── Teams ──────────────────────────────────────────────────────────────────────
@@ -346,7 +350,6 @@ system StripePayments {
 team ProductEngineering {
   size: 28
   description: "Core platform development across web, mobile, and API"
-  owns: [TimeAndExpenseCapture, ProjectProfitabilityEngine, InvoicingAndBilling]
 }
 
 team GrowthAndRevenue {
@@ -357,19 +360,16 @@ team GrowthAndRevenue {
 team CustomerSuccess {
   size: 12
   description: "Onboarding, adoption, and retention across all customer segments"
-  owns: ClientCollaborationHub
 }
 
 team DataPlatform {
   size: 6
   description: "Data engineering and analytics infrastructure"
-  owns: AnalyticsAndReporting
 }
 
 team Integrations {
   size: 5
   description: "Partner integrations and API ecosystem"
-  owns: IntegrationLayer
 }
 
 # ── Roles ──────────────────────────────────────────────────────────────────────
@@ -448,6 +448,7 @@ step GoLiveConfirmation {
 process QuarterlyBusinessReview {
   description: "Regular strategic touchpoint with Enterprise customers to review outcomes and plan expansion"
   performedBy: CustomerSuccessManager
+  measuredBy: NetRevenueRetention
 }
 
 step PrepareQBRDeck {

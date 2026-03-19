@@ -1,0 +1,643 @@
+# ecommerce_platform.csl
+# B2C/B2B2C SaaS ecommerce platform — demonstrates: tiered_subscription + usage_based pricing,
+# external system type, process.measuredBy, objective.timeframe + target.deadline,
+# metric.type field, segment.buyingBehavior, and all canonical relationship directions.
+
+version: "1.0"
+author: "CSL Examples"
+description: "B2C SaaS ecommerce enablement platform — tiered subscriptions and usage-based add-ons"
+
+# ── Company ───────────────────────────────────────────────────────────────────
+
+company CartBridge {
+  industry: "eCommerce Technology"
+  size: "scale-up"
+  stage: "growth"
+  description: "SaaS platform enabling independent retailers and DTC brands to sell across multiple channels — web storefront, marketplaces, and social commerce"
+}
+
+# ── Markets ───────────────────────────────────────────────────────────────────
+
+market SMBRetailTech {
+  region: "Global"
+  size: 22000000000
+  description: "Software for independent retailers and DTC brands managing multi-channel commerce"
+}
+
+market EnterpriseRetailTech {
+  region: "North America, Europe"
+  size: 9000000000
+  description: "Enterprise ecommerce infrastructure for large retailers and brand groups"
+}
+
+# ── Customer Segments ─────────────────────────────────────────────────────────
+
+segment IndependentRetailers {
+  description: "Online-first retailers with $100K–$5M annual GMV seeking to sell across web, marketplace, and social channels"
+  size: 850000
+  operatesIn: SMBRetailTech
+  characteristics: {
+    companySize: "1–20 employees"
+    annualGMV: "$100K–$5M"
+    channels: ["Shopify", "Amazon", "Instagram Shop", "TikTok Shop"]
+  }
+  buyingBehavior: {
+    decisionCycle: "1–3 days"
+    primaryTrigger: "Manual channel management eating 10+ hours/week"
+    keyDecisionMaker: "Founder / Head of eCommerce"
+    preferredEngagementModel: "Self-serve monthly subscription"
+  }
+}
+
+segment DTCBrands {
+  description: "Direct-to-consumer brands with $5M–$50M GMV running 3+ channels and a growing ops team"
+  size: 120000
+  operatesIn: SMBRetailTech
+  characteristics: {
+    companySize: "20–150 employees"
+    annualGMV: "$5M–$50M"
+    channels: ["Own website", "Amazon", "Wholesale portals", "TikTok Shop"]
+  }
+  buyingBehavior: {
+    decisionCycle: "2–6 weeks"
+    primaryTrigger: "Inventory oversell events or catalogue sync failures costing revenue"
+    keyDecisionMaker: "VP of eCommerce or CTO"
+    preferredEngagementModel: "Annual contract with implementation support"
+  }
+}
+
+segment EnterpriseRetailers {
+  description: "Large retailers with $50M+ GMV requiring custom integrations, SLA guarantees, and dedicated support"
+  size: 8000
+  operatesIn: EnterpriseRetailTech
+  characteristics: {
+    companySize: "150+ employees"
+    annualGMV: "$50M+"
+    channels: ["Own site", "Amazon Vendor", "Walmart", "Wholesale EDI", "B2B portals"]
+  }
+  buyingBehavior: {
+    decisionCycle: "3–9 months"
+    primaryTrigger: "Legacy platform sunset or M&A integration requirement"
+    keyDecisionMaker: "CTO and VP eCommerce with CPO sign-off"
+    preferredEngagementModel: "Custom enterprise contract with professional services"
+  }
+}
+
+# ── Outcomes ─────────────────────────────────────────────────────────────────
+
+outcome EliminateInventoryOversells {
+  description: "Reduce inventory sync errors to zero across all connected channels"
+  type: "risk"
+  measuredBy: InventorySyncErrorRate
+  economicValue: {
+    annualImpact: 480000
+    currency: "USD"
+    methodology: "Average oversell event costs $800 in cancelled orders and negative reviews; goal is eliminating 600+ events/year per customer"
+  }
+  clientState: {
+    before: "Inventory managed per-channel in separate spreadsheets — oversell events 2–3x per week"
+    after: "Single inventory pool synced to all channels in under 60 seconds — zero oversells in first 90 days"
+  }
+}
+
+outcome GrowGMVPerCustomer {
+  description: "Increase average GMV processed through CartBridge per customer by 30% YoY"
+  type: "growth"
+  measuredBy: GMVGrowthRate
+}
+
+outcome ReduceOperationalChurn {
+  description: "Reduce monthly churn driven by poor UX or operational friction below 1%"
+  type: "efficiency"
+  measuredBy: MonthlyChurnRate
+}
+
+outcome CompressOrderFulfillmentTime {
+  description: "Cut average time from order receipt to warehouse pick-pack instruction to under 5 minutes"
+  type: "efficiency"
+  measuredBy: OrderToFulfillmentMinutes
+}
+
+# ── Metrics ───────────────────────────────────────────────────────────────────
+
+metric InventorySyncErrorRate {
+  description: "Inventory sync errors per 10,000 channel update events"
+  type: "operational"
+  unit: "errors per 10K events"
+  target: 0
+  baseline: 4.2
+  frequency: "daily"
+}
+
+metric GMVGrowthRate {
+  description: "Year-over-year growth in GMV processed through the platform per active customer"
+  type: "growth"
+  unit: "percent"
+  target: 30
+  baseline: 18
+  frequency: "quarterly"
+}
+
+metric MonthlyChurnRate {
+  description: "Percentage of MRR lost in a given calendar month"
+  type: "retention"
+  unit: "percent"
+  target: 0.8
+  baseline: 2.1
+  frequency: "monthly"
+}
+
+metric OrderToFulfillmentMinutes {
+  description: "Minutes from order webhook received to outbound pick-pack instruction sent to warehouse"
+  type: "operational"
+  unit: "minutes"
+  target: 5
+  baseline: 22
+  frequency: "daily"
+}
+
+metric TimeToFirstChannel {
+  description: "Days from account creation to first live channel connection with at least one active product listing"
+  type: "activation"
+  unit: "days"
+  target: 1
+  baseline: 4
+  frequency: "per-signup"
+}
+
+metric APIUptimeSLA {
+  description: "Monthly uptime of the CartBridge core API, excluding scheduled maintenance windows"
+  type: "reliability"
+  unit: "percent"
+  target: 99.95
+  baseline: 99.72
+  frequency: "monthly"
+}
+
+# ── Objectives ────────────────────────────────────────────────────────────────
+
+objective ReachTenMillionARR {
+  description: "Grow ARR from $4.2M to $10M by end of FY2026 through SMB volume growth and first enterprise contracts"
+  timeframe: "FY2026"
+  measuredBy: [GMVGrowthRate, MonthlyChurnRate]
+  achievedThrough: [MultiChannelSync, OrderManagement]
+  target: {
+    value: 10000000
+    deadline: "2026-12-31"
+    currency: "USD"
+  }
+}
+
+objective LaunchEnterpriseProduct {
+  description: "Close first 5 enterprise contracts and achieve 99.95% uptime SLA by Q3 2026"
+  timeframe: "Q1–Q3 2026"
+  measuredBy: [APIUptimeSLA, InventorySyncErrorRate]
+  achievedThrough: EnterpriseConnectPlus
+}
+
+objective HalveOnboardingTime {
+  description: "Reduce time-to-first-channel from 4 days average to 1 day through guided onboarding improvements"
+  timeframe: "Q1–Q2 2026"
+  measuredBy: TimeToFirstChannel
+  achievedThrough: MultiChannelSync
+}
+
+# ── Offerings ─────────────────────────────────────────────────────────────────
+
+offering MultiChannelSync {
+  description: "Real-time inventory and catalogue synchronisation across web storefront, marketplaces, and social channels"
+  targets: [IndependentRetailers, DTCBrands]
+  delivers: [EliminateInventoryOversells, GrowGMVPerCustomer]
+  requires: [ChannelConnectors, InventoryOrchestration]
+  economics: {
+    avgDealSize: 1800
+    targetMargin: 0.78
+  }
+  performance: {
+    avgDeliveryWeeks: 0
+    reworkRate: 0.01
+  }
+}
+
+offering OrderManagement {
+  description: "Centralised order routing, fulfilment orchestration, and returns management across all channels"
+  targets: [IndependentRetailers, DTCBrands]
+  delivers: CompressOrderFulfillmentTime
+  requires: [OrderRoutingEngine, WarehouseConnector]
+  economics: {
+    avgDealSize: 2400
+    targetMargin: 0.74
+  }
+}
+
+offering EnterpriseConnectPlus {
+  description: "Enterprise-grade platform with custom EDI connectors, dedicated infrastructure, and 99.95% uptime SLA"
+  targets: EnterpriseRetailers
+  delivers: [EliminateInventoryOversells, GrowGMVPerCustomer]
+  requires: [ChannelConnectors, InventoryOrchestration, OrderRoutingEngine, EnterpriseEDIConnector]
+  economics: {
+    avgDealSize: 85000
+    targetMargin: 0.62
+  }
+}
+
+# ── Packages ──────────────────────────────────────────────────────────────────
+
+package Starter {
+  tier: "entry"
+  position: 1
+  offering: MultiChannelSync
+  description: "For independent retailers syncing up to 3 channels and 500 SKUs — self-serve, no contract"
+  pricing: {
+    model: "tiered_subscription"
+    basePrice: 49
+    currency: "USD"
+    paymentTerms: "monthly"
+  }
+  includes: [
+    "Up to 3 channel connections",
+    "Up to 500 SKUs",
+    "Real-time inventory sync",
+    "Order import to CartBridge",
+    "Email support"
+  ]
+}
+
+package Growth {
+  tier: "standard"
+  position: 2
+  offering: MultiChannelSync
+  description: "For growing DTC brands with up to 10 channels and 10,000 SKUs — includes order management"
+  pricing: {
+    model: "tiered_subscription"
+    basePrice: 199
+    currency: "USD"
+    paymentTerms: "monthly or annual (2 months free)"
+  }
+  includes: [
+    "Up to 10 channel connections",
+    "Up to 10,000 SKUs",
+    "Real-time inventory and catalogue sync",
+    "Centralised order management",
+    "Unlimited automation rules",
+    "Priority chat and email support"
+  ]
+}
+
+package Scale {
+  tier: "advanced"
+  position: 3
+  offering: OrderManagement
+  description: "For DTC brands with high order volume needing warehouse integration and advanced routing rules"
+  pricing: {
+    model: "usage_based"
+    basePrice: 399
+    currency: "USD"
+    paymentTerms: "monthly base + $0.02 per order above 5,000/month"
+  }
+  includes: [
+    "Unlimited channels and SKUs",
+    "Warehouse Management System connector",
+    "Advanced order routing logic",
+    "Returns management portal",
+    "Dedicated onboarding manager",
+    "SLA: 99.9% uptime"
+  ]
+}
+
+package EnterpriseCustom {
+  tier: "enterprise"
+  position: 4
+  offering: EnterpriseConnectPlus
+  description: "Custom enterprise contract with dedicated infrastructure, EDI connectors, and professional services"
+  // Custom pricing — contact sales. basePrice is a placeholder.
+  pricing: {
+    model: "tiered_subscription"
+    basePrice: 2500
+    currency: "USD"
+    paymentTerms: "annual, custom quote"
+  }
+  includes: [
+    "All Scale features",
+    "Custom EDI connectors (Amazon Vendor, Walmart, Faire, custom)",
+    "Dedicated cloud infrastructure",
+    "SLA: 99.95% uptime",
+    "Dedicated technical account manager",
+    "Professional services onboarding (up to 40 hours)",
+    "SSO / SAML"
+  ]
+}
+
+# ── Pricing Models ────────────────────────────────────────────────────────────
+
+pricingModel PerSeatTier {
+  type: "tiered_subscription"
+  description: "Monthly or annual subscription with fixed feature tiers — price increases with channels and SKU volume"
+}
+
+pricingModel OrderVolumeBased {
+  type: "usage_based"
+  description: "Base subscription rate plus per-order fee above the included monthly volume"
+}
+
+# ── Capabilities ──────────────────────────────────────────────────────────────
+
+capability ChannelConnectors {
+  description: "Pre-built integrations with 60+ sales channels: Shopify, Amazon, eBay, Etsy, TikTok Shop, Faire, and more"
+  ownedBy: IntegrationsTeam
+  maturity: {
+    current: "expert"
+    target: "expert"
+  }
+  resources: {
+    toolsUsed: [ConnectorPlatform, ChannelAPIGateway]
+    headcount: 6
+    externalDependencies: ["Channel-specific API rate limits", "Marketplace certification requirements"]
+  }
+}
+
+capability InventoryOrchestration {
+  description: "Single inventory pool with real-time allocation logic across channels — sub-60-second sync latency"
+  ownedBy: PlatformEngineering
+  maturity: {
+    current: "advanced"
+    target: "expert"
+  }
+  dependsOn: ChannelConnectors
+  resources: {
+    toolsUsed: [InventoryService, EventStreamingBus]
+    headcount: 4
+  }
+}
+
+capability OrderRoutingEngine {
+  description: "Intelligent order routing: splits, multi-warehouse logic, carrier selection, and SLA-aware prioritisation"
+  ownedBy: PlatformEngineering
+  maturity: {
+    current: "advanced"
+    target: "advanced"
+  }
+  dependsOn: InventoryOrchestration
+}
+
+capability WarehouseConnector {
+  description: "Two-way integration with major WMS platforms (ShipBob, Linnworks, NetSuite WMS) and direct 3PL APIs"
+  ownedBy: IntegrationsTeam
+  maturity: {
+    current: "intermediate"
+    target: "advanced"
+  }
+  dependsOn: OrderRoutingEngine
+}
+
+capability EnterpriseEDIConnector {
+  description: "EDI 850/855/856/810 support for Amazon Vendor Central, Walmart Supplier, Faire, and custom trading partners"
+  ownedBy: IntegrationsTeam
+  maturity: {
+    current: "basic"
+    target: "advanced"
+  }
+  dependsOn: ChannelConnectors
+}
+
+# ── Systems ───────────────────────────────────────────────────────────────────
+
+system ChannelAPIGateway {
+  description: "Internal API gateway that normalises requests to and from 60+ channel APIs — handles rate limiting and retries"
+  type: "internal"
+}
+
+system ConnectorPlatform {
+  description: "Low-code connector framework for building and maintaining channel integrations"
+  type: "internal"
+}
+
+system InventoryService {
+  description: "Core inventory microservice maintaining the single-source inventory pool and sync event queue"
+  type: "internal"
+}
+
+system EventStreamingBus {
+  description: "Kafka-based event streaming bus for real-time inventory and order events across all services"
+  type: "internal"
+}
+
+system ShipBobIntegration {
+  description: "ShipBob WMS API integration for order fulfilment and inventory updates"
+  type: "external"
+  vendor: "ShipBob"
+}
+
+system StripePayments {
+  description: "Stripe for subscription billing, usage-based metering, and invoice management"
+  type: "external"
+  vendor: "Stripe"
+  cost: 48000
+}
+
+system DatadogObservability {
+  description: "Datadog for infrastructure monitoring, alerting, and SLA reporting"
+  type: "external"
+  vendor: "Datadog"
+  cost: 36000
+}
+
+# ── Teams ─────────────────────────────────────────────────────────────────────
+
+team PlatformEngineering {
+  size: 22
+  description: "Core platform team responsible for the inventory, order, and fulfilment microservices"
+}
+
+team IntegrationsTeam {
+  size: 10
+  description: "Builds and maintains channel connectors, WMS integrations, and the EDI layer"
+}
+
+team GrowthAndMarketing {
+  size: 8
+  description: "Self-serve acquisition, product-led growth, and DTC brand marketing"
+}
+
+team CustomerSuccess {
+  size: 7
+  description: "Onboarding, retention, and expansion for Growth and Scale plan customers"
+}
+
+team EnterpriseGTM {
+  size: 4
+  description: "Enterprise sales and technical account management for EnterpriseConnectPlus"
+}
+
+team DataAndReliability {
+  size: 5
+  description: "Data engineering and SRE — owns the event streaming bus, observability, and SLA management"
+}
+
+# ── Roles ─────────────────────────────────────────────────────────────────────
+
+role OnboardingSpecialist {
+  description: "Guides new Growth and Scale customers through channel connection and first-sync setup"
+}
+
+role EnterpriseAccountManager {
+  description: "Owns enterprise customer relationships from contract signature through renewal"
+}
+
+role IntegrationsEngineer {
+  description: "Builds and maintains channel connectors and WMS integrations"
+}
+
+role SiteReliabilityEngineer {
+  description: "Maintains platform uptime, incident response, and SLA reporting"
+}
+
+# ── Processes ─────────────────────────────────────────────────────────────────
+
+process SMBSelfServeOnboarding {
+  description: "Guided in-app onboarding for Starter and Growth customers — target: first channel live within 24 hours"
+  performedBy: OnboardingSpecialist
+  measuredBy: TimeToFirstChannel
+  uses: [ChannelAPIGateway, InventoryService]
+}
+
+step AccountCreationAndPlanSelection {
+  description: "Customer signs up, selects plan, enters billing via Stripe"
+  order: 1
+  partOf: SMBSelfServeOnboarding
+  performedBy: OnboardingSpecialist
+}
+
+step FirstChannelConnection {
+  description: "Customer connects first sales channel via OAuth or API key — system validates permissions"
+  order: 2
+  partOf: SMBSelfServeOnboarding
+  performedBy: OnboardingSpecialist
+  dependsOn: AccountCreationAndPlanSelection
+}
+
+step CatalogueSyncAndMapping {
+  description: "Import product catalogue; customer maps attributes to CartBridge schema; publish to channel"
+  order: 3
+  partOf: SMBSelfServeOnboarding
+  performedBy: OnboardingSpecialist
+  dependsOn: FirstChannelConnection
+  uses: [InventoryService]
+}
+
+step InventorySyncActivation {
+  description: "Activate real-time inventory sync; run first full reconciliation; confirm zero-error baseline"
+  order: 4
+  partOf: SMBSelfServeOnboarding
+  performedBy: OnboardingSpecialist
+  dependsOn: CatalogueSyncAndMapping
+  uses: [InventoryService, ChannelAPIGateway]
+}
+
+step OnboardingCheckIn {
+  description: "Automated email + optional 15-min check-in call at day 3 to confirm first sync successful"
+  order: 5
+  partOf: SMBSelfServeOnboarding
+  performedBy: OnboardingSpecialist
+  dependsOn: InventorySyncActivation
+}
+
+process EnterpriseImplementation {
+  description: "Full enterprise implementation — EDI connectors, custom mapping, UAT, and go-live — targeting 8 weeks"
+  performedBy: EnterpriseAccountManager
+  measuredBy: InventorySyncErrorRate
+  uses: [ChannelAPIGateway, ConnectorPlatform, EventStreamingBus]
+}
+
+step EnterpriseKickoffAndScoping {
+  description: "Technical kickoff: confirm EDI trading partners, data volumes, integration map, and go-live date"
+  order: 1
+  partOf: EnterpriseImplementation
+  performedBy: EnterpriseAccountManager
+}
+
+step ConnectorBuildAndConfiguration {
+  description: "Build or configure required EDI and channel connectors; set up dedicated infrastructure environment"
+  order: 2
+  partOf: EnterpriseImplementation
+  performedBy: IntegrationsEngineer
+  dependsOn: EnterpriseKickoffAndScoping
+  uses: [ConnectorPlatform]
+}
+
+step DataMappingAndTransformation {
+  description: "Map customer product, inventory, and order data schemas to CartBridge canonical format"
+  order: 3
+  partOf: EnterpriseImplementation
+  performedBy: IntegrationsEngineer
+  dependsOn: ConnectorBuildAndConfiguration
+}
+
+step UserAcceptanceTesting {
+  description: "Customer-led UAT with synthetic and live order scenarios across all configured channels"
+  order: 4
+  partOf: EnterpriseImplementation
+  performedBy: EnterpriseAccountManager
+  dependsOn: DataMappingAndTransformation
+}
+
+step GoLiveAndHypercare {
+  description: "Cut over to production; dedicated hypercare coverage for first 2 weeks post-go-live"
+  order: 5
+  partOf: EnterpriseImplementation
+  performedBy: EnterpriseAccountManager
+  dependsOn: UserAcceptanceTesting
+  uses: [DatadogObservability]
+}
+
+# ── Customer Journey ──────────────────────────────────────────────────────────
+
+journey DTCBrandJourney {
+  description: "Growth journey from first self-serve signup through to multi-channel scale and enterprise upgrade"
+  targets: DTCBrands
+  stages: [
+    {
+      name: "Discovery"
+      touchpoints: ["Google search", "G2 comparison", "Shopify App Store listing"]
+      goal: "Brand discovers CartBridge as a multi-channel sync solution"
+    },
+    {
+      name: "Trial"
+      touchpoints: ["Self-serve trial", "In-app guided tour", "Starter plan free trial"]
+      goal: "First channel connected; brand sees inventory sync working in real time"
+    },
+    {
+      name: "Activation"
+      touchpoints: ["Day-1 onboarding email", "In-app checklist", "Growth plan upgrade prompt"]
+      goal: "Brand adds 3+ channels; first oversell-free month confirmed"
+    },
+    {
+      name: "Expansion"
+      touchpoints: ["Usage alert: approaching SKU limit", "CSM outreach", "Scale plan recommendation"]
+      goal: "Brand upgrades to Scale plan; WMS integration completed"
+    },
+    {
+      name: "Retention"
+      touchpoints: ["Quarterly business review", "Product roadmap preview", "Annual renewal call"]
+      goal: "Annual contract signed; NPS > 8; brand refers two peers"
+    }
+  ]
+}
+
+# ── Case Studies ──────────────────────────────────────────────────────────────
+
+caseStudy WildBerryApparel {
+  client: "WildBerry Apparel"
+  industry: "Fashion & Apparel"
+  challenge: "DTC fashion brand selling on own Shopify site, Amazon, and Instagram Shop — manual inventory updates taking 3 hours daily; 4–5 oversell events per week causing customer cancellations and negative reviews"
+  solution: "Deployed CartBridge Growth plan; connected all 3 channels; enabled real-time inventory sync with 45-second update latency; automated order routing to ShipBob WMS"
+  outcome: "Zero oversell events in first 90 days; daily inventory management time reduced from 3 hours to 0; GMV up 24% YoY as brand launched TikTok Shop and Etsy without adding headcount"
+}
+
+caseStudy PrecisionOutdoorGear {
+  client: "Precision Outdoor Gear"
+  industry: "Outdoor & Sporting Goods"
+  challenge: "Mid-size outdoor brand managing Amazon Vendor Central, Walmart Supplier, and direct B2B wholesale via EDI — 3 separate teams and systems causing over-commits and chargebacks from retail partners"
+  solution: "Deployed EnterpriseConnectPlus; configured EDI 850/855/856/810 for Amazon Vendor and Walmart Supplier; unified inventory pool across all channels; implementation completed in 6 weeks"
+  outcome: "EDI chargebacks reduced by 94%; inventory over-commits eliminated; order-to-fulfilment instruction time dropped from 45 minutes to 4 minutes"
+}

@@ -270,8 +270,6 @@ process CoreDeliveryProcess {
 
   uses: [ProjectManagement, CRM]
 
-  supports: [YourOffering]
-
   steps: [
     Step1Discovery,
     Step2Analysis,
@@ -433,7 +431,7 @@ objective GrowRevenue {
     deadline: "2026-12-31"
   }
   measuredBy: [ARR]
-  contributedBy: [
+  achievedThrough: [
     CoreOffering with { impact: 0.80 }
   ]
 }

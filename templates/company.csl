@@ -7,8 +7,11 @@
 // ============================================
 
 company CompanyName {
-  name: "Full Legal / Trading Name"
-  description: "One sentence describing what the company does and who it serves"
+  name: "Full Legal / Trading Name"     // required
+  description: "One sentence describing what the company does and who it serves"  // required
+  industry: "Professional Services"     // required (e.g. "SaaS", "FinTech", "eCommerce")
+  size: "scale-up"                      // required: startup | scale-up | mid-market | enterprise
+  stage: "growth"                       // required: idea | pre-revenue | growth | established | mature
   headquarters: "City, Country"
   founded: 2020                         // year as a number
 

@@ -7,10 +7,10 @@
 // ============================================
 
 caseStudy EngagementName {
-  client: "Client or Project Name"
-  industry: "e.g. Marketing & Creative, FinTech, eCommerce"
-  challenge: "One sentence: what problem did the client face?"
-  solution: "One sentence: what did the company build or deliver?"
-  outcome: "One sentence: measurable results or key success indicators"
+  client: "Client or Project Name"      // required
+  industry: "e.g. Marketing & Creative, FinTech, eCommerce"  // required
+  challenge: "One sentence: what problem did the client face?"  // required
+  solution: "One sentence: what did the company build or deliver?"  // required
+  outcome: "One sentence: measurable results or key success indicators"  // required
   technologies: ["Tool A", "Tool B", "Platform C"]
 }

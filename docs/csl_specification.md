@@ -123,7 +123,6 @@ offering ServiceProductization {
   ]
   delivers: [RevenueGrowth, ReducedFounderDependency]
   measuredBy: [ClientARR, PackageConversionRate]
-  contributesTo: [GrowARR]
   economics: {
     avgDealSize: 24900
     avgDeliveryHours: 120
@@ -135,11 +134,10 @@ offering ServiceProductization {
     avgSalesCycle: 14
     clientRetention: 0.82
   }
-  packages: [FoundationPackage, AgencyPackage, CompleteSystem]
 }
 ```
 
-**Required fields:** `targets` (≥1), `requires` (≥1), `delivers` (≥1)
+**Required fields:** `targets` (≥1), `requires` (≥1), `delivers` (≥1), `economics.avgDealSize`, `economics.targetMargin`
 
 ---
 
@@ -237,7 +235,6 @@ Something the organization must be able to do.
 capability ServiceDesign {
   description: "Design productized service offerings"
   ownedBy: StrategyTeam
-  supports: [ServiceProductization]
   dependsOn: [ClientResearch, ValueCalculation]
   maturity: {
     current: "advanced"
@@ -253,7 +250,7 @@ capability ServiceDesign {
 }
 ```
 
-**Required fields:** `ownedBy`  
+**Required fields:** `ownedBy`, `maturity.current`  
 **Maturity levels:** `basic`, `intermediate`, `advanced`, `expert`  
 **Criticality values:** `low`, `medium`, `high`, `critical`
 
@@ -267,8 +264,8 @@ A repeatable operational workflow.
 process ClientOnboarding {
   description: "30-day structured client onboarding"
   performedBy: ClientSuccessTeam
+  measuredBy: ClientSatisfactionScore
   uses: [CRM, ProjectManagement]
-  supports: [ServiceProductization]
   steps: [
     KickoffScheduling,
     DiscoveryPreparation,
@@ -289,7 +286,7 @@ process ClientOnboarding {
 }
 ```
 
-**Required fields:** `performedBy`, `steps` (≥1)
+**Required fields:** `performedBy`, `measuredBy`, at least one `step` entity with `partOf` pointing to this process
 
 ---
 
@@ -449,7 +446,6 @@ An organizational unit that owns work.
 team StrategyTeam {
   description: "Core consulting delivery"
   roles: [PrincipalConsultant, SeniorConsultant]
-  owns: [ServiceDesign, PricingStrategy]
   size: { current: 3, target: 5 }
   capacity: {
     billableHours: 120
@@ -498,8 +494,6 @@ system CRM {
   description: "Customer relationship management"
   type: "saas"
   vendor: "HubSpot"
-  usedBy: [ClientSuccessTeam, StrategyTeam]
-  supports: [ClientOnboarding]
   cost: { monthly: 450, annual: 5400 }
   integration: {
     connectedTo: [EmailPlatform, ProjectManagement]
@@ -508,7 +502,7 @@ system CRM {
 }
 ```
 
-**System types:** `saas`, `internal`, `infrastructure`, `custom`
+**System types:** `saas`, `internal`, `infrastructure`, `custom`, `external`
 
 ---
 
@@ -520,6 +514,7 @@ A strategic company goal.
 objective GrowARR {
   description: "Grow annual recurring revenue to €2M"
   type: "financial"
+  timeframe: "FY2026"
   target: {
     metric: "ARR"
     current: 800000
@@ -527,14 +522,12 @@ objective GrowARR {
     deadline: "2026-12-31"
   }
   measuredBy: [ARR, MRR]
-  contributedBy: [
-    ServiceProductization with { impact: 0.70 },
-    StrategyAdvisory with { impact: 0.30 }
-  ]
+  achievedThrough: [ServiceProductization, StrategyAdvisory]
 }
 ```
 
-**Objective types:** `financial`, `operational`, `strategic`, `customer`
+**Objective types:** `financial`, `operational`, `strategic`, `customer`  
+**Required fields:** `description`, `timeframe`, `measuredBy` (≥1), `achievedThrough` (≥1)
 
 ---
 
@@ -654,16 +647,17 @@ entity SomeEntity {
 | Relationship | From | To | Meaning | Attributes |
 |---|---|---|---|---|
 | `hasRole` | team | role | Team contains role | count |
-| `owns` | team | capability | Team owns capability | — |
+| `ownedBy` | capability | team | Team owns this capability | — |
 | `reportingTo` | team | team | Structural reporting | — |
 
 ### 3.5 Strategic Relationships
 
 | Relationship | From | To | Meaning | Attributes |
 |---|---|---|---|---|
-| `measuredBy` | offering / objective | metric | Success tracked by metric | weight |
-| `contributesTo` | offering / capability | objective | Contributes to goal | impact |
-| `achievedThrough` | outcome | offering | Outcome via offering | — |
+| `measuredBy` | offering / objective / process | metric | Success tracked by metric | weight |
+| `achievedThrough` | objective | offering | Objective realized via offering | — |
+| `delivers` | offering | outcome | Offering delivers this outcome | — |
+| `requires` | offering | capability | Offering depends on capability | proficiency, criticality |
 
 ---
 

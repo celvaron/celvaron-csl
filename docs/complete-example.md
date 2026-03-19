@@ -119,7 +119,6 @@ offering ServiceProductization {
   
   delivers: [RevenueGrowth, ReducedFounderDependency]
   measuredBy: [ClientARR, PackageConversionRate]
-  contributesTo: [GrowARR, ImproveMargins]
   
   economics: {
     avgDealSize: 24900
@@ -133,8 +132,6 @@ offering ServiceProductization {
     avgSalesCycle: 14
     clientRetention: 0.82
   }
-  
-  packages: [FoundationPackage, AgencyPackage, CompleteSystem]
 }
 
 // ============================================
@@ -220,7 +217,6 @@ capability ServiceDesign {
   description: "Design productized service offerings"
   
   ownedBy: StrategyTeam
-  supports: [ServiceProductization]
   dependsOn: [ClientResearch, ValueCalculation]
   
   maturity: {
@@ -241,14 +237,12 @@ capability ServiceDesign {
 capability PricingStrategy {
   description: "Design value-based pricing models"
   ownedBy: StrategyTeam
-  supports: [ServiceProductization]
   criticality: "high"
 }
 
 capability ProcessMapping {
   description: "Map and optimize operational processes"
   ownedBy: DeliveryTeam
-  supports: [ServiceProductization]
   criticality: "medium"
 }
 
@@ -260,8 +254,8 @@ process ClientOnboarding {
   description: "30-day structured onboarding"
   
   performedBy: ClientSuccessTeam
+  measuredBy: ClientSatisfactionScore
   uses: [CRM, ProjectManagement]
-  supports: [ServiceProductization]
   
   steps: [
     KickoffScheduling,
@@ -378,7 +372,6 @@ team StrategyTeam {
   description: "Core consulting delivery"
   
   roles: [PrincipalConsultant, SeniorConsultant]
-  owns: [ServiceDesign, PricingStrategy]
   
   size: {
     current: 3
@@ -400,7 +393,6 @@ team ClientSuccessTeam {
 team DeliveryTeam {
   description: "Operational execution"
   roles: [Analyst, ProjectManager]
-  owns: [ProcessMapping]
   size: { current: 2, target: 4 }
 }
 
@@ -433,9 +425,6 @@ system CRM {
   type: "saas"
   vendor: "HubSpot"
   
-  usedBy: [ClientSuccessTeam, StrategyTeam]
-  supports: [ClientOnboarding]
-  
   cost: {
     monthly: 450
     annual: 5400
@@ -445,7 +434,6 @@ system CRM {
 system Miro {
   description: "Visual collaboration platform"
   type: "saas"
-  usedBy: [StrategyTeam]
   cost: { monthly: 120 }
 }
 
@@ -453,7 +441,6 @@ system ProjectManagement {
   description: "Project tracking"
   type: "saas"
   vendor: "Notion"
-  usedBy: [DeliveryTeam, ClientSuccessTeam]
 }
 
 // ============================================
@@ -463,6 +450,7 @@ system ProjectManagement {
 objective GrowARR {
   description: "Grow annual recurring revenue"
   type: "financial"
+  timeframe: "FY2026"
   
   target: {
     metric: "ARR"
@@ -472,11 +460,7 @@ objective GrowARR {
   }
   
   measuredBy: [ARR, MRR]
-  
-  contributedBy: [
-    ServiceProductization with { impact: 0.70 },
-    StrategyAdvisory with { impact: 0.30 }
-  ]
+  achievedThrough: [ServiceProductization, StrategyAdvisory]
 }
 
 objective ImproveMargins {

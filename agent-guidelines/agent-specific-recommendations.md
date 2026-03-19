@@ -42,11 +42,26 @@ Rules:
    estimated data.
 10. Output only valid CSL. Do not include explanations outside of CSL comments.
 11. NEVER use 'requires' on a process or step. 'requires' is only valid on offering.
-    If a process depends on a capability, express it as: capability { supports: [OfferingName] }
-12. NEVER use 'contributesTo' on a process or step. 'contributesTo' is only valid on
-    offering and capability. Move contributesTo to the relevant offering or capability.
-13. NEVER use 'targets', 'delivers', or 'operatesIn' on a process, capability, or step.
+    Express capability dependencies via: offering { requires: [CapabilityName] }
+12. NEVER use 'contributesTo' on any entity. It has been removed.
+    Link objectives via: objective { achievedThrough: [OfferingName] }
+13. NEVER use 'capability.supports', 'team.owns', 'outcome.achievedThrough',
+    'process.supports', 'system.usedBy', 'system.supports', or 'offering.packages'.
+    These fields are deprecated. Use the canonical directions:
+    - offering.requires (not capability.supports)
+    - offering.delivers (not outcome.achievedThrough)
+    - capability.ownedBy (not team.owns)
+    - objective.achievedThrough (not offering.contributesTo)
+    - package.offering (not offering.packages)
+    - process.uses (not system.supports / system.usedBy)
+14. NEVER use 'targets', 'delivers', or 'operatesIn' on a process, capability, or step.
     These fields are only valid on offering.
+15. Every 'company' entity must include: name, description, industry, size, stage.
+16. Every 'segment' entity must include: description, size, operatesIn.
+17. Every 'objective' entity must include: description, timeframe, measuredBy, achievedThrough.
+18. Every 'process' entity must include: description, performedBy, measuredBy.
+19. Every 'step' entity must include: description, partOf, performedBy, order.
+20. Every 'metric' entity should use flat fields: target, baseline, frequency (not nested targets{}/measurement{}).
 ```
 
 ---
@@ -112,16 +127,36 @@ After each pass, validate before proceeding to the next.
 Before outputting the final CSL model, iterate over every entity in the draft and run these checks. Do not skip this step.
 
 **For every `process` and `step` entity:**
-- [ ] Does it contain `requires`? → **Remove it.** Move the capability to `capability { supports: [OfferingName] }` or `offering { requires: [CapabilityName] }`.
-- [ ] Does it contain `contributesTo`? → **Remove it.** Move it to `offering { contributesTo: [ObjectiveName] }` or `capability { contributesTo: [ObjectiveName] }`.
+- [ ] Does it contain `requires`? → **Remove it.** Use `offering { requires: [CapabilityName] }` to express the dependency.
+- [ ] Does it contain `contributesTo`? → **Remove it.** Link via `objective { achievedThrough: [OfferingName] }` instead.
+- [ ] Does it contain `supports`? → **Remove `process.supports`.** This field is deprecated and should not appear.
+
+**For every `capability` entity:**
+- [ ] Does it contain `supports`? → **Remove it.** The canonical direction is `offering.requires: [CapabilityName]`.
+- [ ] Does it have `ownedBy`? → **Required.** Every capability must declare `ownedBy: TeamName`.
+- [ ] Does it have `maturity.current`? → **Required.** Add `maturity: { current: "basic|intermediate|advanced|expert" }`.
+
+**For every `team` entity:**
+- [ ] Does it contain `owns`? → **Remove it.** Use `capability.ownedBy: TeamName` on each capability instead.
+- [ ] Does it have `size`? → **Required.** Add `size: N` (plain number or `{ current: N, target: N }`).
+
+**For every `offering` entity:**
+- [ ] Does it contain `contributesTo`? → **Remove it.** Deprecated.
+- [ ] Does it contain `packages`? → **Remove it.** Deprecated. Use `package.offering: OfferingName` on each package.
+- [ ] Does it have `economics.avgDealSize` and `economics.targetMargin`? → **Required.**
+
+**For every `objective` entity:**
+- [ ] Does it contain `contributedBy`? → **Remove it.** Replace with `achievedThrough: [OfferingName]`.
+- [ ] Does it have `timeframe`? → **Required.**
+- [ ] Does it have `measuredBy` and `achievedThrough`? → **Required.**
+
+**For every `system` entity:**
+- [ ] Does it contain `usedBy` or `supports`? → **Remove both.** Reference systems via `process.uses` instead.
 
 **For every entity that is NOT `offering`:**
 - [ ] Does it contain `targets`? → **Remove it.** Only `offering` may target segments.
 - [ ] Does it contain `delivers`? → **Remove it.** Only `offering` delivers outcomes.
 - [ ] Does it contain `operatesIn`? → **Remove it.** Only `offering` operates in markets.
-
-**For every entity that is NOT `capability`:**
-- [ ] Does it contain `ownedBy`? → **Remove it.** Only `capability` declares `ownedBy`. Use `team { owns: [CapabilityName] }` for the inverse if needed.
 
 **For every entity reference in the model:**
 - [ ] Is the referenced entity declared somewhere in the model? If not, either declare it or replace with a `// TODO` comment.

@@ -1,0 +1,544 @@
+# consulting_firm.csl
+# Boutique strategy consultancy — demonstrates fixed-project and retainer pricing,
+# outcome.economicValue, segment.characteristics, capability.resources, and rich
+# process steps. All canonical relationship directions; no deprecated fields.
+
+version: "1.0"
+author: "CSL Examples"
+description: "Boutique strategy consulting firm — complete model with fixed-project and retainer pricing"
+
+# ── Company ────────────────────────────────────────────────────────────────────
+
+company ApexStrategy {
+  industry: "Management Consulting"
+  size: "small-business"
+  stage: "established"
+  description: "Boutique strategy consultancy specialising in market entry and operational transformation for mid-market industrials"
+}
+
+# ── Market ─────────────────────────────────────────────────────────────────────
+
+market MidMarketIndustrials {
+  region: "Europe, North America"
+  size: 4500000000
+  description: "Mid-market industrial and manufacturing companies seeking operational improvement"
+}
+
+# ── Customer Segments ──────────────────────────────────────────────────────────
+
+segment ManufacturingCFOs {
+  description: "CFOs and VPs of Operations at manufacturing firms with $50M–$500M revenue seeking margin improvement"
+  size: 12000
+  operatesIn: MidMarketIndustrials
+  characteristics: {
+    companySize: "50–500 employees"
+    revenue: "$50M–$500M"
+    geographies: ["DACH", "Benelux", "UK", "US Midwest"]
+  }
+  buyingBehavior: {
+    decisionCycle: "8–16 weeks"
+    primaryTrigger: "Board-level margin pressure or failed internal initiative"
+    keyDecisionMaker: "CFO and COO jointly"
+    preferredEngagementModel: "Fixed-fee project with optional retainer follow-on"
+  }
+}
+
+segment PEPortfolioCompanies {
+  description: "PE-backed industrials where sponsors require 100-day operational transformation plans"
+  size: 3500
+  operatesIn: MidMarketIndustrials
+  characteristics: {
+    companySize: "100–800 employees"
+    holdingPeriod: "3–5 years"
+    typicalAUM: "$200M–$1B fund"
+  }
+  buyingBehavior: {
+    decisionCycle: "2–4 weeks"
+    primaryTrigger: "New acquisition — operating partner mandates rapid diagnostic"
+    keyDecisionMaker: "PE operating partner"
+    preferredEngagementModel: "Fixed-fee diagnostic then retained advisory"
+  }
+}
+
+# ── Outcomes ───────────────────────────────────────────────────────────────────
+
+outcome ImprovePlantMargins {
+  description: "Identify and close margin gaps in plant operations — targeting 8+ percentage points of gross margin improvement"
+  type: "financial"
+  measuredBy: GrossMarginImprovement
+  economicValue: {
+    annualImpact: 3200000
+    currency: "EUR"
+    methodology: "Based on average 8.2pp margin improvement across last 14 engagements of this type"
+  }
+  clientState: {
+    before: "Plant GMs running 28–34% gross margin with no visibility into which SKUs or lines are dilutive"
+    after: "GM above 40% with weekly line-level margin dashboard and clear SKU rationalisation roadmap"
+  }
+}
+
+outcome AccelerateMarketEntry {
+  description: "Cut time to revenue in a new geography from 18+ months to under 9 months"
+  type: "growth"
+  measuredBy: TimeToFirstRevenue
+  economicValue: {
+    annualImpact: 1800000
+    currency: "EUR"
+    methodology: "9-month acceleration × average $200K/month revenue run-rate at market entry"
+  }
+  clientState: {
+    before: "No structured market entry playbook — projects run ad hoc by country GMs, frequently stalling at local regulatory hurdles"
+    after: "Replicable market entry playbook deployed; first revenue in new geography within 9 months"
+  }
+}
+
+outcome DeliverTransformationRoadmap {
+  description: "Produce a board-ready 100-day operational transformation plan with prioritised initiatives"
+  type: "efficiency"
+  measuredBy: InitiativesImplemented
+}
+
+# ── Metrics ────────────────────────────────────────────────────────────────────
+
+metric GrossMarginImprovement {
+  description: "Percentage-point improvement in plant-level gross margin versus engagement baseline"
+  unit: "percentage points"
+  target: 8
+  baseline: 0
+  frequency: "per-engagement"
+}
+
+metric TimeToFirstRevenue {
+  description: "Calendar months from market entry kickoff to first signed customer contract in new geography"
+  unit: "months"
+  target: 9
+  baseline: 18
+  frequency: "per-engagement"
+}
+
+metric InitiativesImplemented {
+  description: "Number of roadmap initiatives moved to active implementation within 100 days of report delivery"
+  unit: "count"
+  target: 5
+  baseline: 0
+  frequency: "per-engagement"
+}
+
+metric ClientSatisfactionScore {
+  description: "Post-engagement NPS-style score from primary client contact (0–10)"
+  unit: "score"
+  target: 9
+  baseline: 0
+  frequency: "per-engagement"
+}
+
+metric EngagementRenewalRate {
+  description: "Percentage of project clients that move to a follow-on retainer or second project within 12 months"
+  unit: "percent"
+  target: 60
+  baseline: 38
+  frequency: "quarterly"
+}
+
+# ── Objectives ─────────────────────────────────────────────────────────────────
+
+objective GrowManagedRevenueToFiveM {
+  description: "Reach €5M managed revenue from projects and retainers by end of FY2026"
+  timeframe: "FY2026"
+  measuredBy: [EngagementRenewalRate, GrossMarginImprovement]
+  achievedThrough: [OperationalDiagnostic, MarketEntryAdvisory]
+}
+
+objective BuildPEAdvisoryPipeline {
+  description: "Win 6 PE portfolio company mandates in FY2026 — establishing ApexStrategy as the go-to 100-day operator for mid-market industrials"
+  timeframe: "FY2026"
+  measuredBy: InitiativesImplemented
+  achievedThrough: TransformationRoadmapService
+}
+
+# ── Offerings ──────────────────────────────────────────────────────────────────
+
+offering OperationalDiagnostic {
+  description: "8-week intensive diagnostic identifying top margin and efficiency opportunities across plant operations"
+  targets: [ManufacturingCFOs, PEPortfolioCompanies]
+  delivers: ImprovePlantMargins
+  requires: [PlantAnalytics, BenchmarkingEngine]
+  economics: {
+    avgDealSize: 120000
+    targetMargin: 0.52
+  }
+  performance: {
+    avgDeliveryWeeks: 8
+    reworkRate: 0.04
+  }
+}
+
+offering MarketEntryAdvisory {
+  description: "12-week market entry strategy: target market selection, regulatory mapping, go-to-market sequencing"
+  targets: ManufacturingCFOs
+  delivers: AccelerateMarketEntry
+  requires: [MarketIntelligence, RegulatoryMapping]
+  economics: {
+    avgDealSize: 180000
+    targetMargin: 0.48
+  }
+  performance: {
+    avgDeliveryWeeks: 12
+    reworkRate: 0.06
+  }
+}
+
+offering TransformationRoadmapService {
+  description: "4-week rapid diagnostic producing a board-ready 100-day transformation roadmap for PE-backed companies"
+  targets: PEPortfolioCompanies
+  delivers: DeliverTransformationRoadmap
+  requires: [PlantAnalytics, StakeholderInterviews]
+  economics: {
+    avgDealSize: 80000
+    targetMargin: 0.55
+  }
+  performance: {
+    avgDeliveryWeeks: 4
+    reworkRate: 0.03
+  }
+}
+
+# ── Packages ───────────────────────────────────────────────────────────────────
+
+package DiagnosticOnly {
+  tier: "entry"
+  position: 1
+  offering: OperationalDiagnostic
+  description: "Standalone 8-week diagnostic — fixed fee, no retainer commitment"
+  pricing: {
+    model: "fixed_project"
+    basePrice: 120000
+    currency: "EUR"
+    paymentTerms: "50% on kick-off, 50% on delivery"
+  }
+  includes: [
+    "8-week on-site and off-site diagnostic",
+    "Line-level margin analysis",
+    "SKU rationalisation modelling",
+    "Executive summary + full findings report",
+    "2 boardroom presentation sessions"
+  ]
+}
+
+package DiagnosticPlusRetainer {
+  tier: "standard"
+  position: 2
+  offering: OperationalDiagnostic
+  description: "Diagnostic followed by 6-month implementation advisory retainer"
+  pricing: {
+    model: "monthly_retainer"
+    basePrice: 18000
+    currency: "EUR"
+    paymentTerms: "Monthly, 6-month minimum commitment"
+  }
+  includes: [
+    "All DiagnosticOnly deliverables",
+    "Monthly 4-hour advisory session",
+    "Initiative tracking dashboard",
+    "On-call support for escalations",
+    "Mid-term and end-of-term progress review"
+  ]
+}
+
+package PERapidMandate {
+  tier: "entry"
+  position: 1
+  offering: TransformationRoadmapService
+  description: "4-week 100-day roadmap for PE operating partners post-acquisition"
+  pricing: {
+    model: "fixed_project"
+    basePrice: 80000
+    currency: "EUR"
+    paymentTerms: "100% upfront on signed SOW"
+  }
+  includes: [
+    "Management interviews (up to 15)",
+    "Operational baseline assessment",
+    "Top-10 initiative prioritisation matrix",
+    "Board-ready slide deck",
+    "CEO/COO verbal debrief"
+  ]
+}
+
+# ── Pricing Models ─────────────────────────────────────────────────────────────
+
+pricingModel ProjectFee {
+  type: "fixed_project"
+  description: "Single fixed fee agreed upfront. Scope change triggers a change order."
+}
+
+pricingModel AdvisoryRetainer {
+  type: "monthly_retainer"
+  description: "Monthly retainer for ongoing advisory access — minimum 3-month commitment"
+}
+
+# ── Capabilities ───────────────────────────────────────────────────────────────
+
+capability PlantAnalytics {
+  description: "Proprietary plant-level cost and margin analysis model benchmarking against 200+ industrial operations"
+  ownedBy: AnalyticsAndMethodology
+  maturity: {
+    current: "expert"
+    target: "expert"
+  }
+  resources: {
+    toolsUsed: [BenchmarkDatabase, PowerBIReporting]
+    headcount: 3
+    externalDependencies: ["Euromonitor industry data", "S&P Capital IQ"]
+  }
+}
+
+capability BenchmarkingEngine {
+  description: "Structured benchmarking process comparing client KPIs to industry quartiles across 12 operational dimensions"
+  ownedBy: AnalyticsAndMethodology
+  maturity: {
+    current: "advanced"
+    target: "expert"
+  }
+  dependsOn: PlantAnalytics
+}
+
+capability MarketIntelligence {
+  description: "Market sizing, competitive landscape mapping, and regulatory hurdle identification for target geographies"
+  ownedBy: ResearchAndInsights
+  maturity: {
+    current: "advanced"
+    target: "advanced"
+  }
+  resources: {
+    toolsUsed: [ResearchDatabase]
+    headcount: 2
+    externalDependencies: ["Euromonitor", "Oxford Economics", "local legal counsel network"]
+  }
+}
+
+capability RegulatoryMapping {
+  description: "Country-by-country regulatory and compliance mapping for market entry — covering trade, labour, and tax"
+  ownedBy: ResearchAndInsights
+  maturity: {
+    current: "intermediate"
+    target: "advanced"
+  }
+  dependsOn: MarketIntelligence
+}
+
+capability StakeholderInterviews {
+  description: "Structured management interview protocol for rapid diagnostics — typically 10–15 interviews in 2 weeks"
+  ownedBy: DeliveryPractice
+  maturity: {
+    current: "expert"
+    target: "expert"
+  }
+}
+
+# ── Systems ────────────────────────────────────────────────────────────────────
+
+system BenchmarkDatabase {
+  description: "Internal PostgreSQL database of anonymised KPI data from 200+ past engagements"
+  type: "internal"
+}
+
+system PowerBIReporting {
+  description: "Power BI workspace for client-facing dashboards and internal tracking"
+  type: "internal"
+}
+
+system ResearchDatabase {
+  description: "Euromonitor and Capital IQ subscriptions accessed via browser and API"
+  type: "external"
+  vendor: "Euromonitor / S&P Global"
+}
+
+system CRMSystem {
+  description: "HubSpot CRM for pipeline tracking, proposals, and client communications"
+  type: "external"
+  vendor: "HubSpot"
+}
+
+# ── Teams ──────────────────────────────────────────────────────────────────────
+
+team DeliveryPractice {
+  size: 8
+  description: "Senior consultants and engagement managers who run client-facing diagnostic and advisory work"
+}
+
+team AnalyticsAndMethodology {
+  size: 4
+  description: "Data analysts and methodology owners responsible for the benchmarking engine and plant analytics model"
+}
+
+team ResearchAndInsights {
+  size: 3
+  description: "Research analysts supporting market intelligence and regulatory mapping"
+}
+
+team BusinessDevelopment {
+  size: 2
+  description: "BD leads managing the PE network and inbound enquiry pipeline"
+}
+
+# ── Roles ──────────────────────────────────────────────────────────────────────
+
+role EngagementManager {
+  description: "Owns day-to-day client relationship and delivery quality on each project"
+}
+
+role SeniorConsultant {
+  description: "Leads analytical workstreams and owns key deliverable modules"
+}
+
+role DataAnalyst {
+  description: "Builds the plant margin models and benchmarking outputs"
+}
+
+# ── Processes ──────────────────────────────────────────────────────────────────
+
+process OperationalDiagnosticDelivery {
+  description: "8-week structured process from client kick-off to final board presentation"
+  performedBy: EngagementManager
+  measuredBy: GrossMarginImprovement
+  uses: [BenchmarkDatabase, PowerBIReporting]
+}
+
+step EngagementKickoff {
+  description: "Align on scope, data access, interview schedule, and workstream owners"
+  order: 1
+  partOf: OperationalDiagnosticDelivery
+  performedBy: EngagementManager
+}
+
+step DataCollectionAndBaselining {
+  description: "Gather P&L, production, and cost data; build line-level margin baseline model"
+  order: 2
+  partOf: OperationalDiagnosticDelivery
+  performedBy: DataAnalyst
+  dependsOn: EngagementKickoff
+  uses: [BenchmarkDatabase]
+}
+
+step ManagementInterviews {
+  description: "Conduct 10–15 structured interviews with plant, finance, and commercial leadership"
+  order: 3
+  partOf: OperationalDiagnosticDelivery
+  performedBy: SeniorConsultant
+  dependsOn: DataCollectionAndBaselining
+}
+
+step HypothesisDevelopmentAndValidation {
+  description: "Synthesise data and interview findings into prioritised opportunity hypotheses; validate with client"
+  order: 4
+  partOf: OperationalDiagnosticDelivery
+  performedBy: SeniorConsultant
+  dependsOn: ManagementInterviews
+}
+
+step FindingsAndRecommendationsReport {
+  description: "Produce written findings report and executive summary"
+  order: 5
+  partOf: OperationalDiagnosticDelivery
+  performedBy: EngagementManager
+  dependsOn: HypothesisDevelopmentAndValidation
+}
+
+step BoardPresentation {
+  description: "Deliver boardroom presentation; agree on next steps and optional retainer scope"
+  order: 6
+  partOf: OperationalDiagnosticDelivery
+  performedBy: EngagementManager
+  dependsOn: FindingsAndRecommendationsReport
+}
+
+process PEDiagnosticDelivery {
+  description: "4-week 100-day roadmap process for PE-backed company mandates"
+  performedBy: EngagementManager
+  measuredBy: InitiativesImplemented
+  uses: [BenchmarkDatabase, PowerBIReporting]
+}
+
+step RapidBaselineAssessment {
+  description: "2-day on-site assessment covering operations, finance, and commercial fundamentals"
+  order: 1
+  partOf: PEDiagnosticDelivery
+  performedBy: SeniorConsultant
+}
+
+step ManagementInterviewSprint {
+  description: "Up to 15 management interviews completed within 5 business days"
+  order: 2
+  partOf: PEDiagnosticDelivery
+  performedBy: EngagementManager
+  dependsOn: RapidBaselineAssessment
+}
+
+step InitiativePrioritisation {
+  description: "Build the initiative long-list, score by impact and ease, agree top 10 with PE operating partner"
+  order: 3
+  partOf: PEDiagnosticDelivery
+  performedBy: SeniorConsultant
+  dependsOn: ManagementInterviewSprint
+}
+
+step RoadmapDelivery {
+  description: "Deliver 100-day roadmap slide deck and verbal debrief with CEO/COO and PE partner"
+  order: 4
+  partOf: PEDiagnosticDelivery
+  performedBy: EngagementManager
+  dependsOn: InitiativePrioritisation
+}
+
+# ── Customer Journey ────────────────────────────────────────────────────────────
+
+journey CFOBuyingJourney {
+  description: "Typical procurement journey for a ManufacturingCFO commissioning an operational diagnostic"
+  targets: ManufacturingCFOs
+  stages: [
+    {
+      name: "Trigger"
+      touchpoints: ["Board margin review", "Failed internal lean programme", "Peer referral"]
+      goal: "CFO recognises the problem and starts looking for external support"
+    },
+    {
+      name: "Shortlisting"
+      touchpoints: ["Website case studies", "LinkedIn thought leadership", "Referral call with past client"]
+      goal: "Apex shortlisted alongside 1–2 generalist firms"
+    },
+    {
+      name: "Proposal"
+      touchpoints: ["Credentials presentation", "Scoping call", "Fixed-fee proposal"]
+      goal: "CFO and COO aligned on engagement scope and fee"
+    },
+    {
+      name: "Engagement"
+      touchpoints: ["Kickoff workshop", "Weekly steering calls", "Board presentation"]
+      goal: "Diagnostic delivered on time; CFO satisfied with depth of analysis"
+    },
+    {
+      name: "Retention"
+      touchpoints: ["Retainer proposal", "Implementation progress review at 90 days"]
+      goal: "Client converts to 6-month advisory retainer"
+    }
+  ]
+}
+
+# ── Case Studies ──────────────────────────────────────────────────────────────
+
+caseStudy MidwestAutomotiveTurnaround {
+  client: "Redfield Components"
+  industry: "Automotive Components Manufacturing"
+  challenge: "Plant GM declining 3pp YoY for two consecutive years; management lacked line-level visibility to identify the cause"
+  solution: "Deployed 8-week Operational Diagnostic; built line-level margin model across 4 plants; identified 3 dilutive SKU families and 2 fixable overhead allocation errors"
+  outcome: "Gross margin improved from 31% to 40% within 7 months of implementation; client moved to 6-month advisory retainer"
+}
+
+caseStudy DACHMarketEntry {
+  client: "Brindleford Industrial"
+  industry: "Industrial Equipment Manufacturing"
+  challenge: "UK manufacturer wanted to expand into Germany and Austria but had no DACH distribution or regulatory experience"
+  solution: "12-week Market Entry Advisory covering channel strategy, regulatory mapping, and go-to-market sequencing; introduced 2 distribution partners from Apex network"
+  outcome: "First DACH customer contracts signed 7 months post-kickoff, 11 months ahead of internal plan"
+}
