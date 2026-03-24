@@ -9,14 +9,15 @@
 
 1. [Language Overview](#1-language-overview)
 2. [Entity Types](#2-entity-types)
-3. [Relationship Types](#3-relationship-types)
-4. [Syntax Rules](#4-syntax-rules)
-5. [Graph Model Schema](#5-graph-model-schema)
-6. [Validation Rules](#6-validation-rules)
-7. [Visualization System](#7-visualization-system)
-8. [AS-IS / TO-BE Modeling](#8-as-is--to-be-modeling)
-9. [Best Practices](#9-best-practices)
-10. [Quotera Export](#10-quotera-export)
+3. [Schema Block](#3-schema-block)
+4. [Relationship Types](#4-relationship-types)
+5. [Syntax Rules](#5-syntax-rules)
+6. [Graph Model Schema](#6-graph-model-schema)
+7. [Validation Rules](#7-validation-rules)
+8. [Visualization System](#8-visualization-system)
+9. [AS-IS / TO-BE Modeling](#9-as-is--to-be-modeling)
+10. [Best Practices](#10-best-practices)
+11. [Quotera Export](#11-quotera-export)
 
 ---
 
@@ -611,9 +612,226 @@ entity SomeEntity {
 
 ---
 
-## 3. Relationship Types
+## 3. Schema Block
 
-### 3.1 Commercial Relationships
+### 3.1 Purpose and Backward Compatibility
+
+The `schema` block is an optional top-level construct that makes three previously implicit platform conventions machine-readable:
+
+| Concern | Without schema | With schema |
+|---|---|---|
+| Section membership | Platform hardcodes entity→section mapping | Declared in `sections` block |
+| Relation semantics | All field references treated identically | Each field assigned a named `kind` |
+| Reverse traversal | Heuristics or hardcoded conventions | Declared via `inverse` field |
+
+**Backward compatibility:** A CSL file without a `schema` block is fully valid. The parser produces a complete graph model and all downstream tools continue to apply their existing default inference. The schema block is purely additive.
+
+---
+
+### 3.2 Placement and Syntax
+
+The `schema` block appears at most once per model, after file-level metadata and before the first entity block:
+
+```csl
+version: "1.0"
+state: "current"
+author: "Author Name"
+description: "Model description"
+
+schema {
+  sections: { ... }
+  relations: { ... }
+}
+
+company MyCompany {
+  // entity blocks follow
+}
+```
+
+**Constraints:**
+- At most one `schema` block per model — **ERROR** if a second block is encountered
+- Must appear before any entity block — **ERROR** if placed after an entity
+- Import files may not contain a `schema` block — **ERROR**; schema is model-scope only
+
+**Top-level fields:**
+
+| Field | Type | Level | Notes |
+|---|---|---|---|
+| `sections` | mapping block | O | Entity type → display section assignment |
+| `relations` | mapping block | O | Field reference → relation kind declaration |
+
+Both fields are optional; a `schema` block may declare only one of them.
+
+---
+
+### 3.3 `sections`
+
+Maps stable section identifiers to lists of entity type keywords. Consumers use this to group entities into the correct display section without hardcoding.
+
+```csl
+schema {
+  sections: {
+    Company:      [company]
+    Teams:        [team, role]
+    Strategy:     [objective, metric]
+    Markets:      [market, segment]
+    Offerings:    [offering, package, pricingModel]
+    Processes:    [process, step]
+    Capabilities: [capability]
+    Systems:      [system]
+    Outcomes:     [outcome, caseStudy]
+    Journeys:     [journey]
+  }
+}
+```
+
+**Section key rules:**
+- PascalCase: `[A-Z][A-Za-z0-9]*` — **ERROR** if not matching
+- Unique within the schema block — **ERROR** if duplicated
+- Keys serve as stable API identifiers; display labels are derived from the key by consumers
+
+**Entity type list rules:**
+- Each value must be a known CSL entity type keyword — **ERROR** if unknown type
+- An entity type may appear in exactly one section — **ERROR** if listed in two sections
+- Entity types not assigned to any section generate a **WARNING** per unassigned type
+- If `sections` is omitted entirely, the platform applies its built-in default grouping — no warning
+
+---
+
+### 3.4 `relations`
+
+Maps `entityType.fieldName` references to a relation kind and, optionally, their inverse. This is the mechanism for communicating rendering intent and parent–child traversal without altering field syntax.
+
+```csl
+schema {
+  relations: {
+    // Composition: child is owned by parent, nested under it in views
+    process.steps:             { kind: composition, inverse: step.partOf }
+    offering.packages:         { kind: composition, inverse: package.offering }
+    team.roles:                { kind: composition, inverse: role.memberOf }
+    objective.measuredBy:      { kind: composition, inverse: metric.measures }
+    market.segments:           { kind: composition }
+
+    // Association: cross-reference between independent peer entities
+    capability.ownedBy:        { kind: association, target: team }
+    process.performedBy:       { kind: association, target: team }
+    offering.delivers:         { kind: association, target: outcome }
+    offering.targets:          { kind: association, target: segment }
+    offering.requires:         { kind: association, target: capability }
+    outcome.achievedThrough:   { kind: association, target: offering }
+    objective.achievedThrough: { kind: association, target: offering }
+
+    // Dependency: directional prerequisite, may form a DAG
+    capability.dependsOn:      { kind: dependency }
+    step.dependsOn:            { kind: dependency }
+
+    // Extension: optional specialisation/augmentation link
+    // offering.extends:       { kind: extension, target: offering }
+  }
+}
+```
+
+**Entry key format:** `entityType.fieldName`
+- `entityType` must be a known CSL entity type — **ERROR**
+- `fieldName` must be a valid camelCase identifier — **ERROR** if malformed
+- Each `entityType.fieldName` pair may appear at most once — **ERROR** if duplicated
+- A field may not be declared under two different `kind` values — **ERROR**
+
+**Entry value fields:**
+
+| Field | Type | Level | Notes |
+|---|---|---|---|
+| `kind` | `composition` \| `association` \| `dependency` \| `extension` | R | Semantic classification |
+| `inverse` | `entityType.fieldName` | O | Reverse declaration on the counterpart entity |
+| `target` | entity type keyword | O | Optional target entity type annotation |
+
+---
+
+### 3.5 Relation Kinds
+
+Four built-in relation kinds are recognised. All existing CSL field names remain syntactically valid; `kind` is declarative metadata layered on top of existing syntax, not a replacement for it.
+
+#### `composition`
+
+The child entity is owned by and logically nested within the parent. Platforms render composition as a parent → child hierarchy in tree, detail, and service blueprint views.
+
+| Property | Value |
+|---|---|
+| Rendering | Child nested under parent in hierarchical views |
+| Cardinality default | One parent per child (hard cardinality set per entity in §7.3) |
+| Graph edge `relationKind` | `"composition"` |
+| `inverse` | Strongly recommended |
+
+#### `association`
+
+A cross-reference between independent peer entities. Neither is nested under the other. Platforms render as linked badges, chips, or cross-reference arrows on entity cards.
+
+| Property | Value |
+|---|---|
+| Rendering | Linked badge or chip on entity card; cross-reference panel |
+| Graph edge `relationKind` | `"association"` |
+
+#### `dependency`
+
+A directional prerequisite: the source requires the target to exist or be completed first. Forms a DAG. Platforms may use for critical-path and sequencing analysis.
+
+| Property | Value |
+|---|---|
+| Rendering | Directed arrow; critical-path indicator |
+| Graph edge `relationKind` | `"dependency"` |
+| Cycles | Compile-time **ERROR** (same rule as circular step dependencies in §7.2) |
+
+#### `extension`
+
+The source entity optionally specialises or augments the target, inheriting context while remaining independently valid. Useful for offering variants, process templates, or capability specialisations.
+
+| Property | Value |
+|---|---|
+| Rendering | Dashed specialisation link in architecture views |
+| Graph edge `relationKind` | `"extension"` |
+
+---
+
+### 3.6 `inverse` Declarations
+
+The `inverse` field identifies the reverse-direction declaration on the counterpart entity, enabling bidirectional traversal without heuristics.
+
+```csl
+// Declares that step.partOf is the reverse of process.steps
+process.steps: { kind: composition, inverse: step.partOf }
+```
+
+**Syntax:** `inverse: entityType.fieldName`
+
+| Rule | Severity |
+|---|---|
+| Referenced `entityType` is not a known CSL entity type | ERROR |
+| Referenced `fieldName` is not a valid camelCase identifier | ERROR |
+| Self-inverse: a field declares itself as its own inverse | ERROR |
+| Asymmetric pair: A declares `inverse: B`, B does not declare `inverse: A` | WARNING — one-way traversal |
+| Inverse field absent from counterpart entity definitions | WARNING — parse continues |
+| Child instance populated, reverse field absent on child | WARNING — one-way edge emitted |
+
+**On missing reverse fields:** When a `composition` inverse is declared but the child's reverse field is absent, the platform **nests the child using the parent-side list as authoritative**. Missing reverse fields never block rendering.
+
+---
+
+### 3.7 Schema vs. Inference Precedence
+
+When a `schema` block is present, its declarations override platform inference for covered fields:
+
+| Condition | Resolution |
+|---|---|
+| Schema declares `kind: composition`; inference would treat field as flat reference | Schema wins |
+| Schema assigns entity type to a section; platform default disagrees | Schema wins |
+| Field not covered by schema; platform applies inference | Inference applies |
+| Schema block absent entirely | All inference applies (legacy behaviour) |
+
+---
+
+## 4. Relationship Types
+
+### 4.1 Commercial Relationships
 
 | Relationship | From | To | Meaning | Attributes |
 |---|---|---|---|---|
@@ -623,7 +841,7 @@ entity SomeEntity {
 | `bundledIn` | offering | package | Offering included in package | — |
 | `pricedBy` | package | pricingModel | Package uses pricing model | — |
 
-### 3.2 Capability Relationships
+### 4.2 Capability Relationships
 
 | Relationship | From | To | Meaning | Attributes |
 |---|---|---|---|---|
@@ -632,7 +850,7 @@ entity SomeEntity {
 | `ownedBy` | capability | team | Team owns capability | — |
 | `dependsOn` | capability | capability | Capability depends on another | — |
 
-### 3.3 Operational Relationships
+### 4.3 Operational Relationships
 
 | Relationship | From | To | Meaning | Attributes |
 |---|---|---|---|---|
@@ -642,7 +860,7 @@ entity SomeEntity {
 | `partOf` | step | process | Step belongs to process | — |
 | `dependsOn` | step | step | Step dependency | type: blocking / preferential |
 
-### 3.4 Organizational Relationships
+### 4.4 Organizational Relationships
 
 | Relationship | From | To | Meaning | Attributes |
 |---|---|---|---|---|
@@ -650,7 +868,7 @@ entity SomeEntity {
 | `ownedBy` | capability | team | Team owns this capability | — |
 | `reportingTo` | team | team | Structural reporting | — |
 
-### 3.5 Strategic Relationships
+### 4.5 Strategic Relationships
 
 | Relationship | From | To | Meaning | Attributes |
 |---|---|---|---|---|
@@ -661,9 +879,9 @@ entity SomeEntity {
 
 ---
 
-## 4. Syntax Rules
+## 5. Syntax Rules
 
-### 4.1 Basic Structure
+### 5.1 Basic Structure
 
 ```csl
 entityType EntityName {
@@ -673,7 +891,7 @@ entityType EntityName {
 }
 ```
 
-### 4.2 Entity Names
+### 5.2 Entity Names
 
 - PascalCase: `[A-Z][A-Za-z0-9]*`
 - Unique within entity type
@@ -684,14 +902,14 @@ entityType EntityName {
 ✅ `ClientOnboarding`, `ServiceProductization`, `CFOAdvisory`  
 ❌ `client_onboarding`, `Service-Productization`, `2ndOffering`
 
-### 4.3 Field Names
+### 5.3 Field Names
 
 - camelCase: `[a-z][A-Za-z0-9]*`
 
 ✅ `targets`, `performedBy`, `avgDealSize`  
 ❌ `Targets`, `performed_by`
 
-### 4.4 Value Types
+### 5.4 Value Types
 
 | Type | Example |
 |---|---|
@@ -702,7 +920,7 @@ entityType EntityName {
 | Object | `{ metric: "MRR", value: 50000 }` |
 | Entity reference | `performedBy: StrategyTeam` |
 
-### 4.5 Relationship Attributes
+### 5.5 Relationship Attributes
 
 ```csl
 targets: [SegmentA, SegmentB] with {
@@ -716,7 +934,7 @@ requires: [
 ]
 ```
 
-### 4.6 Comments
+### 5.6 Comments
 
 ```csl
 // Single-line comment
@@ -726,7 +944,7 @@ requires: [
 */
 ```
 
-### 4.7 Imports
+### 5.7 Imports
 
 ```csl
 import "./segments.csl"
@@ -735,11 +953,11 @@ import "./capabilities.csl"
 
 ---
 
-## 5. Graph Model Schema
+## 6. Graph Model Schema
 
 The canonical output of parsing a CSL file is a JSON graph model.
 
-### 5.1 Top-Level Structure
+### 6.1 Top-Level Structure
 
 ```json
 {
@@ -749,7 +967,7 @@ The canonical output of parsing a CSL file is a JSON graph model.
 }
 ```
 
-### 5.2 Meta Object
+### 6.2 Meta Object
 
 ```json
 {
@@ -762,12 +980,17 @@ The canonical output of parsing a CSL file is a JSON graph model.
     "generatedAt": "2024-03-15T10:30:00Z",
     "generator": "csl-parser-v1.0",
     "author": "consultant_name",
-    "project": "acme-transformation-2024"
+    "project": "acme-transformation-2024",
+    "schema": {
+      "present": false,
+      "sections": null,
+      "relations": null
+    }
   }
 }
 ```
 
-### 5.3 Node Object
+### 6.3 Node Object
 
 ```json
 {
@@ -791,13 +1014,14 @@ The canonical output of parsing a CSL file is a JSON graph model.
 
 **Node ID format:** `<entityType>:<EntityName>`
 
-### 5.4 Edge Object
+### 6.4 Edge Object
 
 ```json
 {
   "from": "offering:ServiceProductization",
   "to": "segment:FounderLedAgencies",
   "type": "targets",
+  "relationKind": "association",
   "attributes": {
     "priority": "primary",
     "fitScore": 0.95
@@ -809,24 +1033,57 @@ The canonical output of parsing a CSL file is a JSON graph model.
 }
 ```
 
+**Node ID format:** `<entityType>:<EntityName>`
+
 ---
 
-## 6. Validation Rules
+### 6.5 Schema Output
 
-### 6.1 Naming Rules
+When a `schema` block is present in the source model, the parser emits its contents under `meta.schema`. Downstream consumers (renderers, analytics) read this to avoid hardcoding section assignments and relation semantics.
+
+**`meta.schema` when schema block is absent:**
+
+```json
+"schema": { "present": false, "sections": null, "relations": null }
+```
+
+**`meta.schema` when schema block is present:**
+
+```json
+"schema": {
+  "present": true,
+  "sections": {
+    "Offerings": ["offering", "package", "pricingModel"],
+    "Processes": ["process", "step"]
+  },
+  "relations": {
+    "process.steps": { "kind": "composition", "inverse": "step.partOf" },
+    "capability.ownedBy": { "kind": "association", "target": "team" },
+    "capability.dependsOn": { "kind": "dependency" }
+  }
+}
+```
+
+**`edge.relationKind`** is populated from the schema `relations` map if a matching entry exists for the edge's `type + from-entity-type`. If no schema entry exists, `relationKind` is `null` and consumer falls back to inference.
+
+---
+
+## 7. Validation Rules
+
+### 7.1 Naming Rules
 
 - Entity names match `[A-Z][A-Za-z0-9]*`
 - Field names match `[a-z][A-Za-z0-9]*`
 - Entity names unique within their type - ERROR if duplicated
 - No reserved keywords as names - ERROR
 
-### 6.2 Reference Rules
+### 7.2 Reference Rules
 
 - All referenced entities must be declared in the model - ERROR
 - References must point to the correct entity type - ERROR
 - No circular step dependencies - ERROR
 
-### 6.3 Cardinality Rules
+### 7.3 Cardinality Rules
 
 | Entity | Field | Rule |
 |---|---|---|
@@ -841,7 +1098,7 @@ The canonical output of parsing a CSL file is a JSON graph model.
 | `package` | `offering` | Exactly 1 |
 | `package` | `pricing` | Exactly 1 |
 
-### 6.4 Semantic Warnings
+### 7.4 Semantic Warnings
 
 - Offering without packages — WARNING
 - Offering without performance metrics — WARNING
@@ -851,7 +1108,7 @@ The canonical output of parsing a CSL file is a JSON graph model.
 - Margin < 0.20 or > 0.90 — WARNING
 - ConversionRate < 0.01 or > 0.99 — WARNING
 
-### 6.5 Minimum Viable Model
+### 7.5 Minimum Viable Model
 
 A complete model should contain:
 
@@ -867,9 +1124,53 @@ A complete model should contain:
 
 ---
 
-## 7. Visualization System
+### 7.6 Schema Block Rules
 
-### 7.1 Standard Views
+Applied when a `schema` block is present. Schema rules run **after** syntax and reference validation.
+
+**Structural rules (ERROR severity):**
+
+| Rule | Notes |
+|---|---|
+| More than one `schema` block in a model | Second block rejected |
+| `schema` block declared after an entity block | Must precede all entities |
+| `schema` block in an imported file | Schema is model-scope only |
+| `sections` key does not match `[A-Z][A-Za-z0-9]*` | Invalid identifier |
+| `sections` key duplicated within the same schema | Duplicate section keys |
+| `sections` lists an unknown entity type keyword | Typos caught here |
+| Same entity type listed in two sections | Only one section per type |
+| `relations` entry key is not `entityType.fieldName` format | Malformed entry key |
+| `relations` entry `entityType` is unknown | Undefined entity type |
+| `relations` entry `fieldName` is not camelCase | Malformed field name |
+| Same `entityType.fieldName` declared twice | Duplicate relation entry |
+| Same field declared under two different `kind` values | Ambiguous dual-kind |
+| `inverse` references unknown `entityType` | Undefined entity type |
+| `inverse` references malformed `fieldName` | Must be camelCase |
+| Self-inverse (a field is its own inverse) | Circular self-reference |
+| `dependency` relation forms a cycle in the model graph | Compile-time cycle |
+
+**Consistency rules (WARNING severity — parse continues):**
+
+| Rule | Notes |
+|---|---|
+| Entity type not assigned to any section | One WARNING per unassigned type |
+| Asymmetric inverse pair (A→B but B does not declare →A) | One-way traversal only |
+| Declared inverse field absent from counterpart entity definition | Missing reverse field |
+| Entity instance has parent-side composition list populated but child has no reverse field | One-way edge emitted |
+
+**Precedence matrix:**
+
+| Schema present? | Field covered by schema? | Behaviour |
+|---|---|---|
+| No | — | Full inference (legacy) |
+| Yes | Yes | Schema wins |
+| Yes | No | Inference applies for uncovered fields |
+
+---
+
+## 8. Visualization System
+
+### 8.1 Standard Views
 
 | View | Focus | Audience |
 |---|---|---|
@@ -883,7 +1184,7 @@ A complete model should contain:
 | Client Journey | Awareness → Evaluation → Purchase → Onboarding | Marketing |
 | Change Impact Map | AS-IS vs TO-BE delta with color coding | Transformation |
 
-### 7.2 View Configuration
+### 8.2 View Configuration
 
 ```json
 {
@@ -899,9 +1200,9 @@ A complete model should contain:
 
 ---
 
-## 8. AS-IS / TO-BE Modeling
+## 9. AS-IS / TO-BE Modeling
 
-### 8.1 File Structure
+### 9.1 File Structure
 
 ```
 project/
@@ -910,7 +1211,7 @@ project/
 └── comparison/delta.json
 ```
 
-### 8.2 Change Types
+### 9.2 Change Types
 
 | Value | Meaning |
 |---|---|
@@ -920,7 +1221,7 @@ project/
 | `reduced` | Downgraded/simplified entity |
 | `unchanged` | No change |
 
-### 8.3 Change Metadata on Entities
+### 9.3 Change Metadata on Entities
 
 ```csl
 capability ServiceDesign {
@@ -939,7 +1240,7 @@ capability ServiceDesign {
 
 ---
 
-## 9. Best Practices
+## 10. Best Practices
 
 - **Start small:** Company + 1-2 offerings + key capabilities, then expand
 - **Use confidence levels:** Mark assumptions with `confidence: low`

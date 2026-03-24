@@ -156,9 +156,53 @@ See [visualization.md](visualization.md) for the full view reference.
 
 ---
 
-## Common Mistakes
+## Schema Strategy
 
-| Mistake | Better Approach |
+### When to Include a Schema Block
+
+The `schema` block is optional. Use this table to decide whether to add one to a model:
+
+| Situation | Recommendation |
+|---|---|
+| Single-author, single-file model, rendering is handled by one known codebase | Skip it — hardcoded inference is sufficient |
+| Model consumed by multiple tools, teams, or downstream renderers | Add schema — eliminates each consumer hardcoding the same conventions |
+| Model has complex parent–child nesting (processes, journeys, tiered offerings) | Add `sections` + `composition` relations — prevents nesting ambiguity |
+| Model is handed off to a client or external party | Add schema — makes the intent self-describing without needing to read tool code |
+| Large model with 50+ entities across many types | Add `sections` — helps readers and tools navigate the model |
+| Model is a template or starting point for repeated use | Add schema — future instances inherit correct semantics automatically |
+
+### Progressive Adoption
+
+You do not need to declare a complete schema upfront. Add declarations incrementally as you encounter ambiguity:
+
+1. **Start without a schema block** — parse and render works with inference
+2. **Add `sections` only** when consumers need reliable section grouping  
+3. **Add `composition` relations** when nesting is ambiguous or inconsistent across tools
+4. **Add `association` relations** for key cross-references that are systematically misrendered
+5. **Add `inverse` declarations** when you need guaranteed bidirectional traversal
+
+### What to Declare vs. What to Leave to Inference
+
+Not every field needs a schema entry. Declare fields when:
+- The rendering difference between relation kinds is observable and meaningful to users
+- A child entity's parent link (`partOf`, `memberOf`) needs to be validated consistently
+- A cross-reference is being rendered as nesting (or vice versa) by one consumer
+
+Leave to inference when:
+- The relationship is unambiguous in context (e.g. `offering.economics` is clearly a scalar block)
+- Only one consumer is ever involved and its inference is correct
+
+### Schema Block Common Mistakes
+
+| Mistake | Better approach |
+|---|---|
+| Declaring every field in the model | Only declare fields where kind matters for rendering or traversal |
+| Using `composition` for peer references | Peer references should be `association`; use `composition` only for owned children |
+| Forgetting `inverse` on composition relations | Add `inverse` so child→parent traversal works without heuristics |
+| Asymmetric inverse pairs (A declares B but B doesn't declare A) | Always declare both sides — asymmetry generates a WARNING and degrades traversal |
+| Putting `schema` block in an import file | Schema is model-scope only; declare it in the root model file |
+
+---
 |---|---|
 | Modeling aspirations as AS-IS | Keep AS-IS factual; put aspirations in TO-BE |
 | Skipping `outcome` entirely | Every offering must trace to a concrete outcome |

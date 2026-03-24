@@ -319,3 +319,13 @@ entity AnyEntity {
 - [ ] No orphaned entities (unconnected nodes)
 - [ ] Capability chains complete
 - [ ] Process step dependencies are acyclic
+
+### Schema Checks (when schema block is present)
+- [ ] At most one `schema` block in the model
+- [ ] `schema` block declared before any entity
+- [ ] All section keys are PascalCase and unique
+- [ ] All entity types in `sections` are known keywords
+- [ ] No entity type listed in two sections
+- [ ] All `relations` entry keys follow `entityType.fieldName` format
+- [ ] No `entityType.fieldName` pair declared twice
+- [ ] `inverse` references are symmetric (both sides declared) — WARNING if not

@@ -51,6 +51,66 @@ description: "Short description of what this file models"
 
 ---
 
+## Schema Block (Optional)
+
+The `schema` block may follow file-level metadata and must appear before the first entity block. It is entirely optional; omitting it has no effect on parsing.
+
+```csl
+schema {
+  sections: {
+    Company:      [company]
+    Teams:        [team, role]
+    Strategy:     [objective, metric]
+    Markets:      [market, segment]
+    Offerings:    [offering, package, pricingModel]
+    Processes:    [process, step]
+    Capabilities: [capability]
+    Systems:      [system]
+    Outcomes:     [outcome, caseStudy]
+    Journeys:     [journey]
+  }
+
+  relations: {
+    process.steps:        { kind: composition, inverse: step.partOf }
+    offering.packages:    { kind: composition, inverse: package.offering }
+    team.roles:           { kind: composition, inverse: role.memberOf }
+    capability.ownedBy:   { kind: association, target: team }
+    offering.requires:    { kind: association, target: capability }
+    capability.dependsOn: { kind: dependency }
+    step.dependsOn:       { kind: dependency }
+  }
+}
+```
+
+### `sections` fields
+
+| Field | Type | Level | Notes |
+|---|---|---|---|
+| section key (e.g. `Teams`) | PascalCase identifier | O | Stable display-section identifier |
+| section value | list of entity type keywords | O | All types assigned to this section |
+
+### `relations` fields
+
+| Field | Type | Level | Notes |
+|---|---|---|---|
+| entry key | `entityType.fieldName` | R | The field being classified |
+| `kind` | `composition` \| `association` \| `dependency` \| `extension` | R | Semantic classification |
+| `inverse` | `entityType.fieldName` | O | Reverse-direction field on counterpart entity |
+| `target` | entity type keyword | O | Expected target entity type (annotation only) |
+
+**Relation kind summary:**
+
+| Kind | Platform rendering | Typical use |
+|---|---|---|
+| `composition` | Child nested under parent in hierarchy views | `process.steps`, `team.roles`, `offering.packages` |
+| `association` | Linked badge / cross-reference chip | `capability.ownedBy`, `offering.targets`, `offering.requires` |
+| `dependency` | Directed prerequisite arrow | `capability.dependsOn`, `step.dependsOn` |
+| `extension` | Dashed specialisation link | Offering variants, process templates |
+
+See the [CSL Language Specification §3](csl_specification.md#3-schema-block) for full syntax rules, validation severities, and inverse declaration semantics.
+
+---
+
 ## Shared Fields
 
 Available on every entity. All optional unless noted.

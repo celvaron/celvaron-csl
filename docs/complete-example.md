@@ -22,6 +22,50 @@ Acme Consulting is a Berlin-based advisory firm founded in 2018. It serves found
 // ACME CONSULTING - AS-IS MODEL
 // ============================================
 
+// --------------------------------------------
+// SCHEMA BLOCK
+// Declares section grouping and relation kinds
+// so platform consumers need no hardcoding.
+// --------------------------------------------
+
+schema {
+  sections: {
+    Company:      [company]
+    Teams:        [team, role]
+    Strategy:     [objective, metric]
+    Markets:      [market, segment]
+    Offerings:    [offering, package, pricingModel]
+    Processes:    [process, step]
+    Capabilities: [capability]
+    Systems:      [system]
+    Outcomes:     [outcome, caseStudy]
+    Journeys:     [journey]
+  }
+
+  relations: {
+    // Composition — children nested under their parent
+    process.steps:             { kind: composition, inverse: step.partOf }
+    offering.packages:         { kind: composition, inverse: package.offering }
+    team.roles:                { kind: composition, inverse: role.memberOf }
+    objective.measuredBy:      { kind: composition, inverse: metric.measures }
+    market.segments:           { kind: composition }
+
+    // Association — peer cross-references, rendered as badges
+    capability.ownedBy:        { kind: association, target: team }
+    process.performedBy:       { kind: association, target: team }
+    offering.targets:          { kind: association, target: segment }
+    offering.delivers:         { kind: association, target: outcome }
+    offering.requires:         { kind: association, target: capability }
+    offering.operatesIn:       { kind: association, target: market }
+    outcome.achievedThrough:   { kind: association, target: offering }
+    objective.achievedThrough: { kind: association, target: offering }
+
+    // Dependency — directional prerequisites forming a DAG
+    capability.dependsOn:      { kind: dependency }
+    step.dependsOn:            { kind: dependency }
+  }
+}
+
 company AcmeConsulting {
   name: "Acme Consulting"
   description: "Strategy and operations advisory for service businesses"
